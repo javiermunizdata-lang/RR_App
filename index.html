@@ -1172,8 +1172,8 @@
             const ticketPattern = /^INC\d{8}$/;
             const ucnPattern = /^[A-Z]{6}\d{6}$/;
 
-            if (!ticketNumber || !ucn) {
-                showStatus('Please fill in all fields', 'warning');
+            if (!ticketNumber) {
+                showStatus('Please fill in Ticket Number', 'warning');
                 return;
             }
 
@@ -1182,8 +1182,8 @@
                 return;
             }
 
-            if (!ucnPattern.test(ucn)) {
-                showStatus('UCN must be 6 letters followed by 6 digits (example: ZZZZZZ000000)', 'warning');
+            if (ucn && !ucnPattern.test(ucn)) {
+                showStatus('UCN must be empty or 6 letters followed by 6 digits (example: ZZZZZZ000000)', 'warning');
                 return;
             }
 
