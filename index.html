@@ -1366,7 +1366,15 @@
             updateTime();
             updateNextPerson();
             updateTeamDisplay();
-            updateTicketsTable();
+            if (activeAppView === 'table' && !isEditingTableCell()) {
+                updateTicketsTable();
+            }
+        }
+
+        function isEditingTableCell() {
+            const active = document.activeElement;
+            if (!active) return false;
+            return active.classList.contains('table-input') || active.classList.contains('table-select');
         }
 
         function setTableFilters() {
@@ -1429,6 +1437,10 @@
             tableBtn.classList.toggle('active', !showOverview);
             overviewView.classList.toggle('hidden', !showOverview);
             tableView.classList.toggle('hidden', showOverview);
+
+            if (!showOverview) {
+                updateTicketsTable();
+            }
         }
 
         function getMadridTimeParts() {
