@@ -1505,15 +1505,18 @@
         }
 
         function getMadridDateForSubject() {
-            const parts = new Intl.DateTimeFormat('en-GB', {
-                timeZone: 'Europe/Madrid',
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-            }).formatToParts(new Date());
-            const day = parts.find(p => p.type === 'day')?.value || '01';
-            const month = parts.find(p => p.type === 'month')?.value || 'Jan';
-            const year = parts.find(p => p.type === 'year')?.value || '2026';
+            const madridNow = getZoneDateParts(new Date(), 'Europe/Madrid');
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            // Operational day: between 00:00 and 00:59 (Madrid), keep previous day.
+            let operationalDate = new Date(Date.UTC(madridNow.year, madridNow.month - 1, madridNow.day));
+            if (madridNow.hour < LATERS_TURN.end) {
+                operationalDate = new Date(operationalDate.getTime() - 24 * 60 * 60 * 1000);
+            }
+
+            const day = String(operationalDate.getUTCDate()).padStart(2, '0');
+            const month = months[operationalDate.getUTCMonth()];
+            const year = String(operationalDate.getUTCFullYear());
             return `${day}/${month}/${year}`;
         }
 
