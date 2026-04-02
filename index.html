@@ -135,6 +135,20 @@
             color: #2f4f6f;
         }
 
+        .timezone-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tz-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #4a6078;
+            min-width: 44px;
+            text-align: center;
+        }
+
         .view-tabs {
             display: flex;
             gap: 10px;
@@ -735,6 +749,14 @@
                     <div class="time-badge">
                         Active shift: <span id="active-turn">--</span>
                     </div>
+                    <div class="time-badge timezone-badge">
+                        <span class="tz-label">Madrid</span>
+                        <label class="break-switch" title="Display timezone">
+                            <input type="checkbox" class="break-switch-input" id="timezone-toggle" onchange="toggleDisplayTimeZone(this.checked)">
+                            <span class="break-switch-slider"></span>
+                        </label>
+                        <span class="tz-label">NY</span>
+                    </div>
                 </div>
             </div>
         </header>
@@ -755,7 +777,7 @@
                     <div class="next-person-name" id="next-person-name">---</div>
                     <div class="next-person-role" id="next-person-role">---</div>
                     <div class="balance-info" id="balance-info" style="display: none;"></div>
-                    <div class="rules-info">
+                    <div class="rules-info" id="rules-info-text">
                         Rule: from 16:00, if Laters is below 50% of Early, tickets go only to Laters. After reaching threshold, assignment goes to the lowest individual load (RR on ties).
                     </div>
                 </div>
@@ -935,6 +957,7 @@
             ucn: ''
         };
         let activeAppView = 'overview';
+        let displayTimeZone = 'Europe/Madrid';
         let lastBalancingState = false;
         let pendingEarlyKickoffAfterBalance = false;
 
@@ -1371,6 +1394,7 @@
         function updateDisplay() {
             updateTime();
             updateNextPerson();
+            updateRulesInfo();
             updateTeamDisplay();
             if (activeAppView === 'table' && !isEditingTableCell()) {
                 updateTicketsTable();
@@ -1450,8 +1474,12 @@
         }
 
         function getMadridTimeParts() {
+            return getTimePartsByZone('Europe/Madrid');
+        }
+
+        function getTimePartsByZone(timeZone) {
             const formatter = new Intl.DateTimeFormat('en-GB', {
-                timeZone: 'Europe/Madrid',
+                timeZone,
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: false
@@ -1471,14 +1499,86 @@
             }).format(new Date());
         }
 
-        function updateTime() {
-            const { hours, minutes } = getMadridTimeParts();
-            document.getElementById('current-time').textContent = `${hours}:${minutes}`;
+        function getZoneDateParts(date, timeZone) {
+            const formatter = new Intl.DateTimeFormat('en-GB', {
+                timeZone,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            const parts = formatter.formatToParts(date);
+            const get = (type) => Number.parseInt(parts.find(p => p.type === type)?.value || '0', 10);
+            return {
+                year: get('year'),
+                month: get('month'),
+                day: get('day'),
+                hour: get('hour'),
+                minute: get('minute')
+            };
+        }
 
-            const hour = Number.parseInt(hours, 10);
+        function getZoneOffsetMinutes(fromZone, toZone) {
+            const now = new Date();
+            const from = getZoneDateParts(now, fromZone);
+            const to = getZoneDateParts(now, toZone);
+            const fromMs = Date.UTC(from.year, from.month - 1, from.day, from.hour, from.minute);
+            const toMs = Date.UTC(to.year, to.month - 1, to.day, to.hour, to.minute);
+            return Math.round((toMs - fromMs) / 60000);
+        }
+
+        function normalizeMinutes(minutes) {
+            const day = 24 * 60;
+            return ((minutes % day) + day) % day;
+        }
+
+        function formatMinutes(minutes) {
+            const normalized = normalizeMinutes(minutes);
+            const h = String(Math.floor(normalized / 60)).padStart(2, '0');
+            const m = String(normalized % 60).padStart(2, '0');
+            return `${h}:${m}`;
+        }
+
+        function getDisplayShiftWindow(turn) {
+            const startMadrid = (turn === 'early' ? EARLY_TURN.start : LATERS_TURN.start) * 60;
+            const endMadrid = (turn === 'early' ? EARLY_TURN.end : LATERS_TURN.end) * 60;
+            const offset = getZoneOffsetMinutes('Europe/Madrid', displayTimeZone);
+            return {
+                start: normalizeMinutes(startMadrid + offset),
+                end: normalizeMinutes(endMadrid + offset)
+            };
+        }
+
+        function isWithinWindow(nowMinutes, startMinutes, endMinutes) {
+            if (startMinutes === endMinutes) return true;
+            if (startMinutes < endMinutes) {
+                return nowMinutes >= startMinutes && nowMinutes < endMinutes;
+            }
+            return nowMinutes >= startMinutes || nowMinutes < endMinutes;
+        }
+
+        function getShiftTitle(turn) {
+            const label = turn === 'early' ? 'Early Shift' : 'Laters Shift';
+            const { start, end } = getDisplayShiftWindow(turn);
+            return `${label} (${formatMinutes(start)}-${formatMinutes(end)})`;
+        }
+
+        function toggleDisplayTimeZone(useNewYork) {
+            displayTimeZone = useNewYork ? 'America/New_York' : 'Europe/Madrid';
+            updateDisplay();
+        }
+
+        function updateTime() {
+            const { hours, minutes } = getTimePartsByZone(displayTimeZone);
+            document.getElementById('current-time').textContent = `${hours}:${minutes}`;
+            const nowMinutes = Number.parseInt(hours, 10) * 60 + Number.parseInt(minutes, 10);
+            const earlyWindow = getDisplayShiftWindow('early');
+            const latersWindow = getDisplayShiftWindow('laters');
             const activeShifts = [];
-            if (hour >= EARLY_TURN.start && hour < EARLY_TURN.end) activeShifts.push('Early');
-            if ((hour >= LATERS_TURN.start) || (hour < 1)) activeShifts.push('Laters');
+            if (isWithinWindow(nowMinutes, earlyWindow.start, earlyWindow.end)) activeShifts.push('Early');
+            if (isWithinWindow(nowMinutes, latersWindow.start, latersWindow.end)) activeShifts.push('Laters');
             document.getElementById('active-turn').textContent = activeShifts.length > 0 ? activeShifts.join(' + ') : 'None';
         }
 
@@ -1561,9 +1661,16 @@
             if (!accessToken) return;
 
             let html = '';
-            html += renderTurnColumn('early', 'Early Shift (14:00-23:00)');
-            html += renderTurnColumn('laters', 'Laters Shift (16:00-01:00)');
+            html += renderTurnColumn('early', getShiftTitle('early'));
+            html += renderTurnColumn('laters', getShiftTitle('laters'));
             container.innerHTML = html;
+        }
+
+        function updateRulesInfo() {
+            const rules = document.getElementById('rules-info-text');
+            if (!rules) return;
+            const latersStart = formatMinutes(getDisplayShiftWindow('laters').start);
+            rules.textContent = `Rule: from ${latersStart}, if Laters is below 50% of Early, tickets go only to Laters. After reaching threshold, assignment goes to the lowest individual load (RR on ties).`;
         }
 
         function updateTicketsTable() {
