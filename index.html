@@ -833,11 +833,11 @@
                     <select class="table-select" id="filter-name" onchange="setTableFilters()">
                         <option value="">All names</option>
                     </select>
-                    <select class="table-select" id="filter-customer" onchange="setTableFilters()">
-                        <option value="">All customers</option>
-                    </select>
                     <select class="table-select" id="filter-ucn" onchange="setTableFilters()">
                         <option value="">All UCN</option>
+                    </select>
+                    <select class="table-select" id="filter-customer" onchange="setTableFilters()">
+                        <option value="">All customers</option>
                     </select>
                     <button class="filter-clear-btn" onclick="clearTableFilters()">Clear</button>
                 </div>
@@ -1729,18 +1729,6 @@
                 return NOTE_OPTIONS.includes(note) ? note : '__custom__';
             };
 
-            const getUcnOptions = () => Array.from(new Set(
-                state.tickets
-                    .map(t => (t.ucn || '').trim())
-                    .filter(Boolean)
-            )).sort((a, b) => a.localeCompare(b));
-
-            const getUcnSelectValue = (ucn) => {
-                if (!ucn) return '';
-                const options = getUcnOptions();
-                return options.includes(ucn) ? ucn : '__custom__';
-            };
-
             const filtered = getFilteredTicketsWithIndex();
             if (filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7">No rows match current filters</td></tr>';
@@ -1752,12 +1740,6 @@
                 const noteValue = ticket.notes || '';
                 const noteSelectValue = getNoteSelectValue(noteValue);
                 const customNoteVisible = noteSelectValue === '__custom__';
-                const ucnValue = ticket.ucn || '';
-                const ucnSelectValue = getUcnSelectValue(ucnValue);
-                const customUcnVisible = ucnSelectValue === '__custom__';
-                const ucnOptionsHtml = getUcnOptions()
-                    .map(option => `<option value="${escapeHtml(option)}" ${ucnSelectValue === option ? 'selected' : ''}>${escapeHtml(option)}</option>`)
-                    .join('');
                 const noteOptionsHtml = NOTE_OPTIONS
                     .map(option => `<option value="${escapeHtml(option)}" ${noteSelectValue === option ? 'selected' : ''}>${escapeHtml(option)}</option>`)
                     .join('');
@@ -1767,21 +1749,14 @@
                         <td>${escapeHtml(ticket.turn || '-')}</td>
                         <td>${escapeHtml(ticket.assignedTo || '-')}</td>
                         <td>${escapeHtml(ticket.number || '-')}</td>
-                        <td class="notes-cell">
-                            <select class="table-select" onchange="updateTicketUcnChoice(${index}, this.value, this)">
-                                <option value="" ${ucnSelectValue === '' ? 'selected' : ''}>Empty</option>
-                                ${ucnOptionsHtml}
-                                <option value="__custom__" ${ucnSelectValue === '__custom__' ? 'selected' : ''}>Custom...</option>
-                            </select>
-                            ${customUcnVisible ? `
-                                <input
-                                    type="text"
-                                    class="table-input notes-custom-input"
-                                    value="${escapeHtml(ucnValue)}"
-                                    placeholder="Write UCN"
-                                    onchange="updateTicketCustomUcn(${index}, this.value, this)"
-                                >
-                            ` : ''}
+                        <td>
+                            <input
+                                type="text"
+                                class="table-input"
+                                value="${escapeHtml(ticket.ucn || '')}"
+                                placeholder="UCN"
+                                onchange="updateTicketUcn(${index}, this.value, this)"
+                            >
                         </td>
                         <td>
                             <input
@@ -1831,28 +1806,7 @@
             flashSavedFeedback(element);
         }
 
-        function updateTicketUcnChoice(index, value, element) {
-            if (!state.tickets[index]) return;
-            if (!value) {
-                state.tickets[index].ucn = '';
-                saveState();
-                flashSavedFeedback(element);
-                updateTicketsTable();
-                return;
-            }
-            if (value === '__custom__') {
-                saveState();
-                flashSavedFeedback(element);
-                updateTicketsTable();
-                return;
-            }
-            state.tickets[index].ucn = value;
-            saveState();
-            flashSavedFeedback(element);
-            updateTicketsTable();
-        }
-
-        function updateTicketCustomUcn(index, value, element) {
+        function updateTicketUcn(index, value, element) {
             if (!state.tickets[index]) return;
             state.tickets[index].ucn = value.trim().toUpperCase();
             saveState();
