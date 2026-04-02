@@ -1847,24 +1847,6 @@
             flashSavedFeedback(element);
         }
 
-        async function getGraphMailToken() {
-            const scopes = ['User.Read', 'Mail.ReadWrite'];
-            let account = msalInstance.getAllAccounts()[0];
-
-            if (!account) {
-                const loginResult = await msalInstance.loginPopup({ scopes });
-                account = loginResult.account;
-            }
-
-            try {
-                const tokenResult = await msalInstance.acquireTokenSilent({ scopes, account });
-                return tokenResult.accessToken;
-            } catch {
-                const tokenResult = await msalInstance.acquireTokenPopup({ scopes, account });
-                return tokenResult.accessToken;
-            }
-        }
-
         function buildHandoverHtmlBody(dateLabel, senderSignature) {
             const esc = (value) => String(value || '')
                 .replaceAll('&', '&amp;')
@@ -1944,48 +1926,28 @@
             const subject = `HANDOVER: Madrid T1 Night ${dateLabel}`;
             const senderSignature = state.currentUser || 'GSOC';
             const htmlBody = buildHandoverHtmlBody(dateLabel, senderSignature);
+            const plainBody = state.tickets
+                .map(ticket => `${ticket.number || '-'}\t${ticket.ucn || '-'}\t${ticket.customer || '-'}\t${ticket.notes || '-'}`)
+                .join('\n');
+
+            const composeUrl = `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}`;
+            window.open(composeUrl, '_blank', 'noopener,noreferrer');
 
             try {
-                const token = await getGraphMailToken();
-                const payload = {
-                    subject,
-                    body: {
-                        contentType: 'HTML',
-                        content: htmlBody
-                    },
-                    toRecipients: [{ emailAddress: { address: to } }],
-                    ccRecipients: [{ emailAddress: { address: cc } }]
-                };
-
-                const response = await fetch('https://graph.microsoft.com/v1.0/me/messages', {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const text = await response.text();
-                    throw new Error(`Graph error ${response.status}: ${text}`);
-                }
-
-                const draft = await response.json();
-                if (draft?.webLink) {
-                    window.open(draft.webLink, '_blank', 'noopener,noreferrer');
+                if (navigator.clipboard && window.ClipboardItem) {
+                    const item = new ClipboardItem({
+                        'text/html': new Blob([htmlBody], { type: 'text/html' }),
+                        'text/plain': new Blob([plainBody], { type: 'text/plain' })
+                    });
+                    await navigator.clipboard.write([item]);
+                    showStatus('Template copied. In Outlook compose, paste with Ctrl+V.', 'success');
                 } else {
-                    window.open('https://outlook.office.com/mail/', '_blank', 'noopener,noreferrer');
+                    await navigator.clipboard.writeText(plainBody);
+                    showStatus('Plain template copied. Paste in Outlook compose.', 'info');
                 }
-                showStatus('Handover draft created in Outlook', 'success');
             } catch (error) {
                 console.error(error);
-                showStatus('Could not create formatted Outlook draft. Falling back to plain compose.', 'warning');
-                const fallbackBody = state.tickets
-                    .map(ticket => `${ticket.number || '-'}\t${ticket.ucn || '-'}\t${ticket.customer || '-'}\t${ticket.notes || '-'}`)
-                    .join('\n');
-                const fallbackUrl = `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fallbackBody)}`;
-                window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+                showStatus('Could not auto-copy template. Compose opened; paste manually from app data.', 'warning');
             }
         }
 
