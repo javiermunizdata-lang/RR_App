@@ -834,12 +834,15 @@
                         <option value="Early">Early</option>
                         <option value="Laters">Laters</option>
                     </select>
-                    <input type="text" class="table-input" id="filter-name" list="filter-name-options" placeholder="Filter by Name" oninput="setTableFilters()">
-                    <datalist id="filter-name-options"></datalist>
-                    <input type="text" class="table-input" id="filter-customer" list="filter-customer-options" placeholder="Filter by Customer" oninput="setTableFilters()">
-                    <datalist id="filter-customer-options"></datalist>
-                    <input type="text" class="table-input" id="filter-ucn" list="filter-ucn-options" placeholder="Filter by UCN" oninput="setTableFilters()">
-                    <datalist id="filter-ucn-options"></datalist>
+                    <select class="table-select" id="filter-name" onchange="setTableFilters()">
+                        <option value="">All names</option>
+                    </select>
+                    <select class="table-select" id="filter-customer" onchange="setTableFilters()">
+                        <option value="">All customers</option>
+                    </select>
+                    <select class="table-select" id="filter-ucn" onchange="setTableFilters()">
+                        <option value="">All UCN</option>
+                    </select>
                     <button class="filter-clear-btn" onclick="clearTableFilters()">Clear</button>
                 </div>
                 <div class="tickets-table-wrapper" id="tickets-table-wrapper">
@@ -1442,26 +1445,31 @@
                 .map((ticket, index) => ({ ticket, index }))
                 .filter(({ ticket }) => {
                     const shiftMatch = !tableFilters.shift || (ticket.turn || '') === tableFilters.shift;
-                    const nameMatch = !tableFilters.name || (ticket.assignedTo || '').toLowerCase().includes(tableFilters.name);
-                    const customerMatch = !tableFilters.customer || (ticket.customer || '').toLowerCase().includes(tableFilters.customer);
-                    const ucnMatch = !tableFilters.ucn || (ticket.ucn || '').toLowerCase().includes(tableFilters.ucn);
+                    const nameMatch = !tableFilters.name || (ticket.assignedTo || '').toLowerCase() === tableFilters.name;
+                    const customerMatch = !tableFilters.customer || (ticket.customer || '').toLowerCase() === tableFilters.customer;
+                    const ucnMatch = !tableFilters.ucn || (ticket.ucn || '').toLowerCase() === tableFilters.ucn;
                     return shiftMatch && nameMatch && customerMatch && ucnMatch;
                 });
         }
 
         function updateFilterAutocompleteOptions() {
-            const setOptions = (datalistId, values) => {
-                const datalist = document.getElementById(datalistId);
-                if (!datalist) return;
+            const setSelectOptions = (selectId, values, allLabel) => {
+                const select = document.getElementById(selectId);
+                if (!select) return;
+                const currentValue = select.value || '';
                 const normalized = Array.from(new Set(values.map(v => (v || '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
-                datalist.innerHTML = normalized
-                    .map(value => `<option value="${String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')}"></option>`)
+                const optionsHtml = normalized
+                    .map(value => `<option value="${String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')}">${String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')}</option>`)
                     .join('');
+                select.innerHTML = `<option value="">${allLabel}</option>${optionsHtml}`;
+                if ([...select.options].some(option => option.value === currentValue)) {
+                    select.value = currentValue;
+                }
             };
 
-            setOptions('filter-name-options', state.tickets.map(ticket => ticket.assignedTo || ''));
-            setOptions('filter-customer-options', state.tickets.map(ticket => ticket.customer || ''));
-            setOptions('filter-ucn-options', state.tickets.map(ticket => ticket.ucn || ''));
+            setSelectOptions('filter-name', state.tickets.map(ticket => ticket.assignedTo || ''), 'All names');
+            setSelectOptions('filter-customer', state.tickets.map(ticket => ticket.customer || ''), 'All customers');
+            setSelectOptions('filter-ucn', state.tickets.map(ticket => ticket.ucn || ''), 'All UCN');
         }
 
         function switchAppView(view) {
