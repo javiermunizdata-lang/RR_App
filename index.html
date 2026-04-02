@@ -796,11 +796,6 @@
                     <input type="text" id="ticket-number" placeholder="INC00000000" autocomplete="off" disabled>
                 </div>
 
-                <div class="form-group">
-                    <label for="ticket-ucn">UCN:</label>
-                    <input type="text" id="ticket-ucn" placeholder="ZZZZZZ000000" autocomplete="off" disabled>
-                </div>
-
                 <div class="button-group">
                     <button class="btn-primary action-btn" id="btn-assign" onclick="assignTicket()">Assign Ticket</button>
                     <button class="btn-secondary action-btn btn-mail-action" onclick="createHandoverEmail()">Create Handover Email</button>
@@ -1334,11 +1329,8 @@
 
         function assignTicket() {
             const ticketNumberInput = document.getElementById('ticket-number').value.trim();
-            const ucnInput = document.getElementById('ticket-ucn').value.trim();
             const ticketNumber = ticketNumberInput.toUpperCase();
-            const ucn = ucnInput.toUpperCase();
             const ticketPattern = /^INC\d{8}$/;
-            const ucnPattern = /^[A-Z]{6}\d{6}$/;
 
             if (!ticketNumber) {
                 showStatus('Please fill in Ticket Number', 'warning');
@@ -1350,13 +1342,7 @@
                 return;
             }
 
-            if (ucn && !ucnPattern.test(ucn)) {
-                showStatus('UCN must be empty or 6 letters followed by 6 digits (example: ZZZZZZ000000)', 'warning');
-                return;
-            }
-
             document.getElementById('ticket-number').value = ticketNumber;
-            document.getElementById('ticket-ucn').value = ucn;
 
             const next = getNextPerson();
             if (!next || !next.person) {
@@ -1366,7 +1352,7 @@
 
             const ticket = {
                 number: ticketNumber,
-                ucn: ucn,
+                ucn: '',
                 customer: '',
                 notes: '',
                 assignedTo: next.person.name,
@@ -1381,7 +1367,6 @@
             }
 
             document.getElementById('ticket-number').value = '';
-            document.getElementById('ticket-ucn').value = '';
             document.getElementById('ticket-number').focus();
 
             const balanceMsg = next.balancing ? ' (Laters balancing)' : '';
@@ -1744,6 +1729,18 @@
                 return NOTE_OPTIONS.includes(note) ? note : '__custom__';
             };
 
+            const getUcnOptions = () => Array.from(new Set(
+                state.tickets
+                    .map(t => (t.ucn || '').trim())
+                    .filter(Boolean)
+            )).sort((a, b) => a.localeCompare(b));
+
+            const getUcnSelectValue = (ucn) => {
+                if (!ucn) return '';
+                const options = getUcnOptions();
+                return options.includes(ucn) ? ucn : '__custom__';
+            };
+
             const filtered = getFilteredTicketsWithIndex();
             if (filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7">No rows match current filters</td></tr>';
@@ -1755,6 +1752,12 @@
                 const noteValue = ticket.notes || '';
                 const noteSelectValue = getNoteSelectValue(noteValue);
                 const customNoteVisible = noteSelectValue === '__custom__';
+                const ucnValue = ticket.ucn || '';
+                const ucnSelectValue = getUcnSelectValue(ucnValue);
+                const customUcnVisible = ucnSelectValue === '__custom__';
+                const ucnOptionsHtml = getUcnOptions()
+                    .map(option => `<option value="${escapeHtml(option)}" ${ucnSelectValue === option ? 'selected' : ''}>${escapeHtml(option)}</option>`)
+                    .join('');
                 const noteOptionsHtml = NOTE_OPTIONS
                     .map(option => `<option value="${escapeHtml(option)}" ${noteSelectValue === option ? 'selected' : ''}>${escapeHtml(option)}</option>`)
                     .join('');
@@ -1764,7 +1767,22 @@
                         <td>${escapeHtml(ticket.turn || '-')}</td>
                         <td>${escapeHtml(ticket.assignedTo || '-')}</td>
                         <td>${escapeHtml(ticket.number || '-')}</td>
-                        <td>${escapeHtml(ticket.ucn || '-')}</td>
+                        <td class="notes-cell">
+                            <select class="table-select" onchange="updateTicketUcnChoice(${index}, this.value, this)">
+                                <option value="" ${ucnSelectValue === '' ? 'selected' : ''}>Empty</option>
+                                ${ucnOptionsHtml}
+                                <option value="__custom__" ${ucnSelectValue === '__custom__' ? 'selected' : ''}>Custom...</option>
+                            </select>
+                            ${customUcnVisible ? `
+                                <input
+                                    type="text"
+                                    class="table-input notes-custom-input"
+                                    value="${escapeHtml(ucnValue)}"
+                                    placeholder="Write UCN"
+                                    onchange="updateTicketCustomUcn(${index}, this.value, this)"
+                                >
+                            ` : ''}
+                        </td>
                         <td>
                             <input
                                 type="text"
@@ -1809,6 +1827,34 @@
         function updateTicketCustomer(index, value, element) {
             if (!state.tickets[index]) return;
             state.tickets[index].customer = value.trim();
+            saveState();
+            flashSavedFeedback(element);
+        }
+
+        function updateTicketUcnChoice(index, value, element) {
+            if (!state.tickets[index]) return;
+            if (!value) {
+                state.tickets[index].ucn = '';
+                saveState();
+                flashSavedFeedback(element);
+                updateTicketsTable();
+                return;
+            }
+            if (value === '__custom__') {
+                saveState();
+                flashSavedFeedback(element);
+                updateTicketsTable();
+                return;
+            }
+            state.tickets[index].ucn = value;
+            saveState();
+            flashSavedFeedback(element);
+            updateTicketsTable();
+        }
+
+        function updateTicketCustomUcn(index, value, element) {
+            if (!state.tickets[index]) return;
+            state.tickets[index].ucn = value.trim().toUpperCase();
             saveState();
             flashSavedFeedback(element);
         }
@@ -2039,7 +2085,6 @@
 
         function updateAuthUI() {
             const ticketNumber = document.getElementById('ticket-number');
-            const ticketUcn = document.getElementById('ticket-ucn');
             const assignBtn = document.getElementById('btn-assign');
 
             // AUTO LOGIN FOR TESTING
@@ -2049,7 +2094,6 @@
             }
 
             ticketNumber.disabled = false;
-            ticketUcn.disabled = false;
             assignBtn.disabled = false;
         }
 
