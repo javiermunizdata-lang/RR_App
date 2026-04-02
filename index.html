@@ -1367,6 +1367,7 @@
                 notes: '',
                 assignedTo: next.person.name,
                 time: new Date().toLocaleTimeString(),
+                createdAtMs: Date.now(),
                 turn: next.person.turn === 'early' ? 'Early' : 'Laters'
             };
 
@@ -1505,6 +1506,18 @@
                 month: '2-digit',
                 year: '2-digit'
             }).format(new Date());
+        }
+
+        function formatTicketTimeForDisplay(ticket) {
+            if (Number.isFinite(ticket?.createdAtMs)) {
+                return new Intl.DateTimeFormat('en-GB', {
+                    timeZone: displayTimeZone,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                }).format(new Date(ticket.createdAtMs));
+            }
+            return ticket?.time || '-';
         }
 
         function getZoneDateParts(date, timeZone) {
@@ -1755,7 +1768,7 @@
                                 >
                             ` : ''}
                         </td>
-                        <td>${escapeHtml(ticket.time || '-')}</td>
+                        <td>${escapeHtml(formatTicketTimeForDisplay(ticket))}</td>
                     </tr>
                 `;
             });
