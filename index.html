@@ -1919,6 +1919,38 @@
             `.trim();
         }
 
+        function buildHandoverEml(to, cc, subject, htmlBody) {
+            const boundary = `----=_NextPart_${Date.now()}`;
+            const date = new Date().toUTCString();
+            const normalize = (value) => String(value || '').replace(/\r?\n/g, '\r\n');
+            const html = normalize(htmlBody);
+
+            return [
+                `To: ${to}`,
+                `Cc: ${cc}`,
+                `Subject: ${subject}`,
+                'MIME-Version: 1.0',
+                `Date: ${date}`,
+                `Content-Type: multipart/alternative; boundary="${boundary}"`,
+                '',
+                `--${boundary}`,
+                'Content-Type: text/plain; charset="UTF-8"',
+                'Content-Transfer-Encoding: 8bit',
+                '',
+                'GSOC Daily Handover',
+                'Please view this message in HTML format.',
+                '',
+                `--${boundary}`,
+                'Content-Type: text/html; charset="UTF-8"',
+                'Content-Transfer-Encoding: 8bit',
+                '',
+                html,
+                '',
+                `--${boundary}--`,
+                ''
+            ].join('\r\n');
+        }
+
         async function createHandoverEmail() {
             const to = 'gsocdailyhandover@ipc.com';
             const cc = 'gsoc@ipc.com';
@@ -1926,28 +1958,30 @@
             const subject = `HANDOVER: Madrid T1 Night ${dateLabel}`;
             const senderSignature = state.currentUser || 'GSOC';
             const htmlBody = buildHandoverHtmlBody(dateLabel, senderSignature);
-            const plainBody = state.tickets
-                .map(ticket => `${ticket.number || '-'}\t${ticket.ucn || '-'}\t${ticket.customer || '-'}\t${ticket.notes || '-'}`)
-                .join('\n');
-
-            const composeUrl = `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}`;
-            window.open(composeUrl, '_blank', 'noopener,noreferrer');
 
             try {
-                if (navigator.clipboard && window.ClipboardItem) {
-                    const item = new ClipboardItem({
-                        'text/html': new Blob([htmlBody], { type: 'text/html' }),
-                        'text/plain': new Blob([plainBody], { type: 'text/plain' })
-                    });
-                    await navigator.clipboard.write([item]);
-                    showStatus('Template copied. In Outlook compose, paste with Ctrl+V.', 'success');
-                } else {
-                    await navigator.clipboard.writeText(plainBody);
-                    showStatus('Plain template copied. Paste in Outlook compose.', 'info');
-                }
+                const eml = buildHandoverEml(to, cc, subject, htmlBody);
+                const blob = new Blob([eml], { type: 'message/rfc822;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const fileDate = dateLabel.replaceAll('/', '-');
+                const fileName = `HANDOVER_Madrid_T1_Night_${fileDate}.eml`;
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Best effort: some setups open EML directly in desktop Outlook.
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 5000);
+
+                showStatus('Handover EML generated. Open the downloaded file in Outlook Desktop.', 'success');
             } catch (error) {
                 console.error(error);
-                showStatus('Could not auto-copy template. Compose opened; paste manually from app data.', 'warning');
+                showStatus('Could not generate Outlook EML file.', 'error');
             }
         }
 
