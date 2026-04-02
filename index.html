@@ -1348,7 +1348,7 @@
                         <div class="member-controls">
                             <span class="off-label ${onBreak ? 'off' : 'on'}">${onBreak ? 'OFF' : 'ON'}</span>
                             <label class="break-switch" title="On break">
-                                <input type="checkbox" class="break-switch-input" ${onBreak ? 'checked' : ''} onchange="toggleBreak('${member.id}')">
+                                <input type="checkbox" class="break-switch-input" ${onBreak ? '' : 'checked'} onchange="toggleBreak('${member.id}')">
                                 <span class="break-switch-slider"></span>
                             </label>
                         </div>
