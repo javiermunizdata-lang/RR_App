@@ -6,6 +6,8 @@
     <title>Madrid RR App</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-graph-client/3.0.1/graph-client.min.js"></script>
     <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -646,6 +648,9 @@
         const NC_LATERS_ACTIVE = { start: 16, end: 20 };
         const BALANCE_THRESHOLD = 0.5;
         const NC_POSITION_INDEX = 0;
+        const LOCAL_STATE_KEY = 'ticketAssignmentState';
+        const CLOUD_COLLECTION = 'rrApp';
+        const CLOUD_DOC_ID = 'currentState';
 
         const ALL_MEMBERS = [...EARLY_TURN.members, ...LATERS_TURN.members];
         const MEMBERS_BY_ID = ALL_MEMBERS.reduce((acc, member) => {
@@ -668,6 +673,20 @@
         const msalInstance = new msal.PublicClientApplication(msalConfig);
         let graphClient = null;
         let accessToken = null;
+        let firestoreDb = null;
+        let cloudPersistenceEnabled = false;
+
+        // Firebase config for cloud persistence.
+        // Fill these values from Firebase project settings.
+        const firebaseConfig = {
+            apiKey: 'AIzaSyD5Vdg0UXbQm_9-cf3CIjvP54GSe6Suiy4',
+            authDomain: 'rr-app-d00ad.firebaseapp.com',
+            projectId: 'rr-app-d00ad',
+            storageBucket: 'rr-app-d00ad.firebasestorage.app',
+            messagingSenderId: '284805631174',
+            appId: '1:284805631174:web:c70de6088135450b90dbc7',
+            measurementId: 'G-HY6FT4M1D1'
+        };
 
         let state = {
             tickets: [],
@@ -679,21 +698,84 @@
         };
 
         // ==================== INITIALIZATION ====================
-        function initializeState() {
-            const saved = localStorage.getItem('ticketAssignmentState');
-            if (saved) {
-                const loaded = JSON.parse(saved);
-                state.tickets = loaded.tickets || [];
-                state.teamConfig = loaded.teamConfig || getDefaultTeamConfig();
-                state.teamOrder = loaded.teamOrder || getDefaultTeamOrder();
-                state.breaks = loaded.breaks || {};
-            } else {
-                state.teamConfig = getDefaultTeamConfig();
-                state.teamOrder = getDefaultTeamOrder();
+        function isFirebaseConfigReady() {
+            return Object.values(firebaseConfig).every(value => value && !String(value).startsWith('YOUR_'));
+        }
+
+        function setupCloudPersistence() {
+            if (!window.firebase || !isFirebaseConfigReady()) return;
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            firestoreDb = firebase.firestore();
+            cloudPersistenceEnabled = true;
+        }
+
+        function applyLoadedState(loaded) {
+            state.tickets = loaded?.tickets || [];
+            state.rrIndex = Number.isInteger(loaded?.rrIndex) ? loaded.rrIndex : 0;
+            state.teamConfig = loaded?.teamConfig || getDefaultTeamConfig();
+            state.teamOrder = loaded?.teamOrder || getDefaultTeamOrder();
+            state.breaks = loaded?.breaks || {};
+        }
+
+        function getSerializableState() {
+            return {
+                tickets: state.tickets,
+                rrIndex: state.rrIndex,
+                teamConfig: state.teamConfig,
+                teamOrder: state.teamOrder,
+                breaks: state.breaks
+            };
+        }
+
+        async function loadStateFromCloud() {
+            if (!cloudPersistenceEnabled || !firestoreDb) return false;
+            try {
+                const snapshot = await firestoreDb.collection(CLOUD_COLLECTION).doc(CLOUD_DOC_ID).get();
+                if (!snapshot.exists) return false;
+                applyLoadedState(snapshot.data());
+                return true;
+            } catch (error) {
+                console.error('Cloud load failed:', error);
+                return false;
+            }
+        }
+
+        async function saveStateToCloud() {
+            if (!cloudPersistenceEnabled || !firestoreDb) return;
+            try {
+                const payload = {
+                    ...getSerializableState(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                await firestoreDb.collection(CLOUD_COLLECTION).doc(CLOUD_DOC_ID).set(payload, { merge: true });
+            } catch (error) {
+                console.error('Cloud save failed:', error);
+            }
+        }
+
+        async function initializeState() {
+            let loadedFromCloud = false;
+            setupCloudPersistence();
+
+            if (cloudPersistenceEnabled) {
+                loadedFromCloud = await loadStateFromCloud();
+            }
+
+            if (!loadedFromCloud) {
+                const saved = localStorage.getItem(LOCAL_STATE_KEY);
+                if (saved) {
+                    applyLoadedState(JSON.parse(saved));
+                } else {
+                    applyLoadedState({
+                        teamConfig: getDefaultTeamConfig(),
+                        teamOrder: getDefaultTeamOrder()
+                    });
+                }
             }
 
             normalizeTeamState();
             recalculateTickets();
+            saveState();
         }
 
         function getDefaultTeamConfig() {
@@ -758,7 +840,8 @@
         }
 
         function saveState() {
-            localStorage.setItem('ticketAssignmentState', JSON.stringify(state));
+            localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(getSerializableState()));
+            void saveStateToCloud();
         }
 
         // ==================== BREAK MANAGEMENT ====================
@@ -1002,17 +1085,15 @@
             updateDisplay();
         }
 
-        // ==================== EXCEL SYNC ====================
-        // DISABLED FOR LOCAL TESTING - Only localStorage
+        // ==================== PERSISTENCE ====================
         async function loadDataFromExcel() {
-            // Just load from localStorage
+            // State is loaded by initializeState().
             return;
         }
 
         async function saveDataToExcel() {
-            // Just save to localStorage
             saveState();
-            showStatus('Data saved locally', 'success');
+            showStatus(cloudPersistenceEnabled ? 'Data saved to cloud' : 'Data saved locally', 'success');
         }
 
         // ==================== DISPLAY & UI ====================
@@ -1218,10 +1299,15 @@
         }
 
         // ==================== INIT ====================
-        initializeState();
-        updateAuthUI();
-        updateDisplay();
-        setInterval(updateDisplay, 1000);
+        async function startApp() {
+            await initializeState();
+            updateAuthUI();
+            updateDisplay();
+            setInterval(updateDisplay, 1000);
+            showStatus(cloudPersistenceEnabled ? 'Cloud persistence enabled' : 'Cloud persistence not configured, using local storage', 'info');
+        }
+
+        startApp();
     </script>
 </body>
 </html>
