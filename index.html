@@ -34,10 +34,16 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 20px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            justify-content: flex-start;
+            align-items: flex-start;
             flex-wrap: wrap;
             gap: 20px;
+        }
+
+        .header-main {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         h1 {
@@ -113,17 +119,20 @@
 
         .time-info {
             display: flex;
-            gap: 20px;
+            gap: 10px;
             flex-wrap: wrap;
             font-size: 14px;
             color: #666;
+            margin-top: 2px;
         }
 
         .time-badge {
-            background: #ecf0f1;
+            background: linear-gradient(180deg, #f1f6fb 0%, #e9f0f7 100%);
             padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: 500;
+            border-radius: 8px;
+            font-weight: 600;
+            border: 1px solid #d6e2ef;
+            color: #2f4f6f;
         }
 
         .view-tabs {
@@ -717,8 +726,8 @@
 <body>
     <div class="container">
         <header>
-            <div>
-                <h1>Madrid RR App</h1>
+            <div class="header-main">
+                <h1>🔄 Madrid RR App</h1>
                 <div class="time-info">
                     <div class="time-badge">
                         Current time: <span id="current-time">--:--</span>
@@ -727,13 +736,6 @@
                         Active shift: <span id="active-turn">--</span>
                     </div>
                 </div>
-            </div>
-            <div class="auth-section">
-                <div class="auth-status logged-out" id="auth-status">
-                    Not authenticated
-                </div>
-                <button class="btn-primary" id="btn-login" onclick="loginRedirect()">Sign in</button>
-                <button class="btn-danger" id="btn-logout" onclick="logout()" style="display: none;">Sign out</button>
             </div>
         </header>
 
@@ -1773,9 +1775,6 @@
         }
 
         function updateAuthUI() {
-            const authStatus = document.getElementById('auth-status');
-            const btnLogin = document.getElementById('btn-login');
-            const btnLogout = document.getElementById('btn-logout');
             const ticketNumber = document.getElementById('ticket-number');
             const ticketUcn = document.getElementById('ticket-ucn');
             const assignBtn = document.getElementById('btn-assign');
@@ -1786,11 +1785,6 @@
                 state.currentUser = 'Local User';
             }
 
-            authStatus.textContent = `User: ${state.currentUser}`;
-            authStatus.classList.remove('logged-out');
-            authStatus.classList.add('logged-in');
-            btnLogin.style.display = 'none';
-            btnLogout.style.display = 'block';
             ticketNumber.disabled = false;
             ticketUcn.disabled = false;
             assignBtn.disabled = false;
