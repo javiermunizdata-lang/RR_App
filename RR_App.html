@@ -491,6 +491,33 @@
             overflow-y: auto;
         }
 
+        .history-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .history-tab-btn {
+            padding: 7px 12px;
+            border: 1px solid #b9d8f5;
+            background: #eef6ff;
+            color: #2c3e50;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .history-tab-btn.active {
+            background: #3498db;
+            border-color: #3498db;
+            color: white;
+        }
+
+        .history-panel.hidden {
+            display: none;
+        }
+
         .ticket-item {
             background: #f8f9fa;
             padding: 12px;
@@ -527,6 +554,38 @@
         .empty-state-icon {
             font-size: 48px;
             margin-bottom: 10px;
+        }
+
+        .tickets-table-wrapper {
+            max-height: 400px;
+            overflow: auto;
+            border: 1px solid #dbe7f3;
+            border-radius: 8px;
+        }
+
+        .tickets-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 680px;
+            background: white;
+        }
+
+        .tickets-table th,
+        .tickets-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 12px;
+            text-align: left;
+            color: #2c3e50;
+            white-space: nowrap;
+        }
+
+        .tickets-table th {
+            position: sticky;
+            top: 0;
+            background: #f5f9fd;
+            font-weight: 700;
+            z-index: 1;
         }
     </style>
 </head>
@@ -602,10 +661,38 @@
             <!-- Assignment History -->
             <div class="card assignment-history-card">
                 <h2>Assignment History</h2>
-                <div class="tickets-list" id="tickets-list">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">ðŸ“‹</div>
-                        <p>Loading data...</p>
+                <div class="history-tabs">
+                    <button class="history-tab-btn active" id="tab-btn-history" onclick="switchHistoryTab('history')">History</button>
+                    <button class="history-tab-btn" id="tab-btn-table" onclick="switchHistoryTab('table')">Ticket Table</button>
+                </div>
+
+                <div class="history-panel" id="history-panel">
+                    <div class="tickets-list" id="tickets-list">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">ðŸ“‹</div>
+                            <p>Loading data...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="history-panel hidden" id="table-panel">
+                    <div class="tickets-table-wrapper" id="tickets-table-wrapper">
+                        <table class="tickets-table">
+                            <thead>
+                                <tr>
+                                    <th>Shift</th>
+                                    <th>Name</th>
+                                    <th>Ticket</th>
+                                    <th>UCN</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tickets-table-body">
+                                <tr>
+                                    <td colspan="5">Loading data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -697,6 +784,7 @@
             teamOrder: { early: [], laters: [] },
             breaks: {}
         };
+        let activeHistoryTab = 'history';
 
         // ==================== INITIALIZATION ====================
         function isFirebaseConfigReady() {
@@ -1113,6 +1201,21 @@
             updateNextPerson();
             updateTeamDisplay();
             updateTicketsList();
+            updateTicketsTable();
+        }
+
+        function switchHistoryTab(tab) {
+            activeHistoryTab = tab;
+            const historyBtn = document.getElementById('tab-btn-history');
+            const tableBtn = document.getElementById('tab-btn-table');
+            const historyPanel = document.getElementById('history-panel');
+            const tablePanel = document.getElementById('table-panel');
+            const showHistory = tab === 'history';
+
+            historyBtn.classList.toggle('active', showHistory);
+            tableBtn.classList.toggle('active', !showHistory);
+            historyPanel.classList.toggle('hidden', !showHistory);
+            tablePanel.classList.toggle('hidden', showHistory);
         }
 
         function getMadridTimeParts() {
@@ -1247,6 +1350,35 @@
                 `;
             });
             list.innerHTML = html;
+        }
+
+        function updateTicketsTable() {
+            const tbody = document.getElementById('tickets-table-body');
+            if (!tbody) return;
+
+            if (!accessToken) {
+                tbody.innerHTML = '<tr><td colspan="5">Sign in to view tickets</td></tr>';
+                return;
+            }
+
+            if (state.tickets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No tickets yet</td></tr>';
+                return;
+            }
+
+            let rows = '';
+            state.tickets.forEach(ticket => {
+                rows += `
+                    <tr>
+                        <td>${ticket.turn || '-'}</td>
+                        <td>${ticket.assignedTo || '-'}</td>
+                        <td>${ticket.number || '-'}</td>
+                        <td>${ticket.ucn || '-'}</td>
+                        <td>${ticket.time || '-'}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = rows;
         }
 
         function showStatus(message, type = 'info') {
