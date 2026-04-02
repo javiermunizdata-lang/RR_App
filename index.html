@@ -600,12 +600,19 @@
 
         .table-filters {
             display: grid;
-            grid-template-columns: 150px 1fr 1fr 1fr auto;
+            grid-template-columns: 140px minmax(170px, 1fr) minmax(170px, 1fr) minmax(170px, 1fr) auto;
             gap: 8px;
             margin-bottom: 10px;
+            align-items: center;
         }
 
         @media (max-width: 980px) {
+            .table-filters {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
             .table-filters {
                 grid-template-columns: 1fr;
             }
@@ -677,14 +684,25 @@
         }
 
         .filter-clear-btn {
-            padding: 6px 10px;
-            border: 1px solid #cbd8e6;
-            background: #f3f7fb;
-            color: #2c3e50;
+            padding: 8px 12px;
+            border: 1px solid #bcd1e6;
+            background: linear-gradient(180deg, #f8fbff 0%, #edf4fb 100%);
+            color: #35506b;
             border-radius: 6px;
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .filter-clear-btn:hover {
+            background: linear-gradient(180deg, #eff6fe 0%, #e2ecf7 100%);
+        }
+
+        .table-filters .table-input,
+        .table-filters .table-select {
+            height: 34px;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -776,9 +794,12 @@
                         <option value="Early">Early</option>
                         <option value="Laters">Laters</option>
                     </select>
-                    <input type="text" class="table-input" id="filter-name" placeholder="Filter by Name" oninput="setTableFilters()">
-                    <input type="text" class="table-input" id="filter-customer" placeholder="Filter by Customer" oninput="setTableFilters()">
-                    <input type="text" class="table-input" id="filter-ucn" placeholder="Filter by UCN" oninput="setTableFilters()">
+                    <input type="text" class="table-input" id="filter-name" list="filter-name-options" placeholder="Filter by Name" oninput="setTableFilters()">
+                    <datalist id="filter-name-options"></datalist>
+                    <input type="text" class="table-input" id="filter-customer" list="filter-customer-options" placeholder="Filter by Customer" oninput="setTableFilters()">
+                    <datalist id="filter-customer-options"></datalist>
+                    <input type="text" class="table-input" id="filter-ucn" list="filter-ucn-options" placeholder="Filter by UCN" oninput="setTableFilters()">
+                    <datalist id="filter-ucn-options"></datalist>
                     <button class="filter-clear-btn" onclick="clearTableFilters()">Clear</button>
                 </div>
                 <div class="tickets-table-wrapper" id="tickets-table-wrapper">
@@ -1357,6 +1378,21 @@
                 });
         }
 
+        function updateFilterAutocompleteOptions() {
+            const setOptions = (datalistId, values) => {
+                const datalist = document.getElementById(datalistId);
+                if (!datalist) return;
+                const normalized = Array.from(new Set(values.map(v => (v || '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+                datalist.innerHTML = normalized
+                    .map(value => `<option value="${String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')}"></option>`)
+                    .join('');
+            };
+
+            setOptions('filter-name-options', state.tickets.map(ticket => ticket.assignedTo || ''));
+            setOptions('filter-customer-options', state.tickets.map(ticket => ticket.customer || ''));
+            setOptions('filter-ucn-options', state.tickets.map(ticket => ticket.ucn || ''));
+        }
+
         function switchAppView(view) {
             activeAppView = view;
             const overviewBtn = document.getElementById('view-btn-overview');
@@ -1491,6 +1527,8 @@
         function updateTicketsTable() {
             const tbody = document.getElementById('tickets-table-body');
             if (!tbody) return;
+
+            updateFilterAutocompleteOptions();
 
             if (!accessToken) {
                 tbody.innerHTML = '<tr><td colspan="7">Sign in to view tickets</td></tr>';
