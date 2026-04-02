@@ -1415,8 +1415,14 @@
                 });
 
             const body = lines.join('\n');
-            const url = `mailto:${to}?cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.location.href = url;
+            const outlookUrl = `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            const popup = window.open(outlookUrl, '_blank', 'noopener,noreferrer');
+
+            // Fallback for browsers that block popups.
+            if (!popup) {
+                const mailtoUrl = `mailto:${to}?cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.location.href = mailtoUrl;
+            }
         }
 
         function resetAllData() {
