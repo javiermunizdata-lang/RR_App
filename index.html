@@ -662,6 +662,12 @@
             box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
         }
 
+        .cell-saved {
+            border-color: #27ae60 !important;
+            box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.18) !important;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
         .notes-cell {
             min-width: 210px;
         }
@@ -1535,11 +1541,11 @@
                                 class="table-input"
                                 value="${escapeHtml(ticket.customer || '')}"
                                 placeholder="Customer"
-                                onchange="updateTicketCustomer(${index}, this.value)"
+                                onchange="updateTicketCustomer(${index}, this.value, this)"
                             >
                         </td>
                         <td class="notes-cell">
-                            <select class="table-select" onchange="updateTicketNote(${index}, this.value)">
+                            <select class="table-select" onchange="updateTicketNote(${index}, this.value, this)">
                                 <option value="" ${noteSelectValue === '' ? 'selected' : ''}>Select note...</option>
                                 ${noteOptionsHtml}
                                 <option value="__custom__" ${noteSelectValue === '__custom__' ? 'selected' : ''}>Custom...</option>
@@ -1550,7 +1556,7 @@
                                     class="table-input notes-custom-input"
                                     value="${escapeHtml(noteValue)}"
                                     placeholder="Write custom note"
-                                    onchange="updateTicketCustomNote(${index}, this.value)"
+                                    onchange="updateTicketCustomNote(${index}, this.value, this)"
                                 >
                             ` : ''}
                         </td>
@@ -1561,18 +1567,29 @@
             tbody.innerHTML = rows;
         }
 
-        function updateTicketCustomer(index, value) {
+        function flashSavedFeedback(element) {
+            if (!element) return;
+            element.classList.add('cell-saved');
+            setTimeout(() => {
+                element.classList.remove('cell-saved');
+            }, 700);
+            showStatus('Changes saved', 'success');
+        }
+
+        function updateTicketCustomer(index, value, element) {
             if (!state.tickets[index]) return;
             state.tickets[index].customer = value.trim();
             saveState();
+            flashSavedFeedback(element);
         }
 
-        function updateTicketNote(index, value) {
+        function updateTicketNote(index, value, element) {
             if (!state.tickets[index]) return;
 
             if (!value) {
                 state.tickets[index].notes = '';
                 saveState();
+                flashSavedFeedback(element);
                 updateTicketsTable();
                 return;
             }
@@ -1582,19 +1599,22 @@
                     state.tickets[index].notes = '';
                 }
                 saveState();
+                flashSavedFeedback(element);
                 updateTicketsTable();
                 return;
             }
 
             state.tickets[index].notes = value;
             saveState();
+            flashSavedFeedback(element);
             updateTicketsTable();
         }
 
-        function updateTicketCustomNote(index, value) {
+        function updateTicketCustomNote(index, value, element) {
             if (!state.tickets[index]) return;
             state.tickets[index].notes = value.trim();
             saveState();
+            flashSavedFeedback(element);
         }
 
         function createHandoverEmail() {
