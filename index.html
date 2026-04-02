@@ -102,6 +102,15 @@
             background: #c0392b;
         }
 
+        .btn-secondary {
+            background: #6c7a89;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5d6975;
+        }
+
         .time-info {
             display: flex;
             gap: 20px;
@@ -641,6 +650,8 @@
 
                 <div class="button-group">
                     <button class="btn-primary" id="btn-assign" onclick="assignTicket()">Assign Ticket</button>
+                    <button class="btn-secondary" onclick="createHandoverEmail()">Create Handover Email</button>
+                    <button class="btn-danger" onclick="resetAllData()">Reset Data</button>
                 </div>
 
                 <div class="status-bar" id="status-message">
@@ -1218,6 +1229,15 @@
             return { hours, minutes };
         }
 
+        function getMadridDateShort() {
+            return new Intl.DateTimeFormat('es-ES', {
+                timeZone: 'Europe/Madrid',
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit'
+            }).format(new Date());
+        }
+
         function updateTime() {
             const { hours, minutes } = getMadridTimeParts();
             document.getElementById('current-time').textContent = `${hours}:${minutes}`;
@@ -1340,6 +1360,41 @@
                 `;
             });
             tbody.innerHTML = rows;
+        }
+
+        function createHandoverEmail() {
+            const to = 'gsocdailyhandover@ipc.com';
+            const cc = 'gsoc@ipc.com';
+            const dateShort = getMadridDateShort();
+            const subject = `HANDOVER: Madrid T1 Night (${dateShort})`;
+
+            const lines = ['Ticket;UCN;;'];
+            state.tickets
+                .slice()
+                .reverse()
+                .forEach(ticket => {
+                    lines.push(`${ticket.number || ''};${ticket.ucn || ''};;`);
+                });
+
+            const body = lines.join('\n');
+            const url = `mailto:${to}?cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = url;
+        }
+
+        function resetAllData() {
+            const confirmed = window.confirm('Reset all data? This will clear tickets and restore default team setup.');
+            if (!confirmed) return;
+
+            state.tickets = [];
+            state.rrIndex = 0;
+            state.teamConfig = getDefaultTeamConfig();
+            state.teamOrder = getDefaultTeamOrder();
+            state.breaks = {};
+            normalizeTeamState();
+            recalculateTickets();
+            saveState();
+            updateDisplay();
+            showStatus('Data reset completed', 'success');
         }
 
         function showStatus(message, type = 'info') {
