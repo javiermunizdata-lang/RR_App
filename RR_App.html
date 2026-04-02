@@ -675,6 +675,7 @@
         let accessToken = null;
         let firestoreDb = null;
         let cloudPersistenceEnabled = false;
+        let lastCloudError = '';
 
         // Firebase config for cloud persistence.
         // Fill these values from Firebase project settings.
@@ -704,9 +705,16 @@
 
         function setupCloudPersistence() {
             if (!window.firebase || !isFirebaseConfigReady()) return;
-            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-            firestoreDb = firebase.firestore();
-            cloudPersistenceEnabled = true;
+            try {
+                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                firestoreDb = firebase.firestore();
+                cloudPersistenceEnabled = true;
+                lastCloudError = '';
+            } catch (error) {
+                cloudPersistenceEnabled = false;
+                lastCloudError = error?.message || 'Unknown Firebase init error';
+                console.error('Firebase init failed:', error);
+            }
         }
 
         function applyLoadedState(loaded) {
@@ -735,6 +743,7 @@
                 applyLoadedState(snapshot.data());
                 return true;
             } catch (error) {
+                lastCloudError = error?.message || 'Unknown cloud load error';
                 console.error('Cloud load failed:', error);
                 return false;
             }
@@ -749,7 +758,9 @@
                 };
                 await firestoreDb.collection(CLOUD_COLLECTION).doc(CLOUD_DOC_ID).set(payload, { merge: true });
             } catch (error) {
+                lastCloudError = error?.message || 'Unknown cloud save error';
                 console.error('Cloud save failed:', error);
+                showStatus(`Cloud save failed: ${lastCloudError}`, 'error');
             }
         }
 
@@ -1304,7 +1315,13 @@
             updateAuthUI();
             updateDisplay();
             setInterval(updateDisplay, 1000);
-            showStatus(cloudPersistenceEnabled ? 'Cloud persistence enabled' : 'Cloud persistence not configured, using local storage', 'info');
+            if (cloudPersistenceEnabled) {
+                showStatus('Cloud persistence enabled', 'info');
+            } else if (lastCloudError) {
+                showStatus(`Cloud disabled: ${lastCloudError}`, 'error');
+            } else {
+                showStatus('Cloud persistence not configured, using local storage', 'info');
+            }
         }
 
         startApp();
