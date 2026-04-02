@@ -601,7 +601,7 @@
         .tickets-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 680px;
+            min-width: 940px;
             background: white;
         }
 
@@ -629,6 +629,32 @@
 
         .tickets-table tbody tr td:first-child {
             border-left: 4px solid #3498db;
+        }
+
+        .table-input,
+        .table-select {
+            width: 100%;
+            border: 1px solid #cdd8e3;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 12px;
+            color: #2c3e50;
+            background: white;
+        }
+
+        .table-input:focus,
+        .table-select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+        }
+
+        .notes-cell {
+            min-width: 210px;
+        }
+
+        .notes-custom-input {
+            margin-top: 6px;
         }
     </style>
 </head>
@@ -722,12 +748,14 @@
                                 <th>Name</th>
                                 <th>Ticket</th>
                                 <th>UCN</th>
+                                <th>Customer</th>
+                                <th>Notes</th>
                                 <th>Time</th>
                             </tr>
                         </thead>
                         <tbody id="tickets-table-body">
                             <tr>
-                                <td colspan="5">Loading data...</td>
+                                <td colspan="7">Loading data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -772,6 +800,13 @@
         const NC_LATERS_ACTIVE = { start: 16, end: 20 };
         const BALANCE_THRESHOLD = 0.5;
         const NC_POSITION_INDEX = 0;
+        const NOTE_OPTIONS = [
+            'Chase Carrier',
+            'Chase A-end',
+            'Chase B-end',
+            'Chase Dispatch',
+            'Monitoring'
+        ];
         const LOCAL_STATE_KEY = 'ticketAssignmentState';
         const CLOUD_COLLECTION = 'rrApp';
         const CLOUD_DOC_ID = 'currentState';
@@ -1199,6 +1234,8 @@
             const ticket = {
                 number: ticketNumber,
                 ucn: ucn,
+                customer: '',
+                notes: '',
                 assignedTo: next.person.name,
                 time: new Date().toLocaleTimeString(),
                 turn: next.person.turn === 'early' ? 'Early' : 'Laters'
@@ -1376,28 +1413,108 @@
             if (!tbody) return;
 
             if (!accessToken) {
-                tbody.innerHTML = '<tr><td colspan="5">Sign in to view tickets</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7">Sign in to view tickets</td></tr>';
                 return;
             }
 
             if (state.tickets.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">No tickets yet</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7">No tickets yet</td></tr>';
                 return;
             }
 
+            const escapeHtml = (value) => String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+
+            const getNoteSelectValue = (note) => {
+                if (!note) return '';
+                return NOTE_OPTIONS.includes(note) ? note : '__custom__';
+            };
+
             let rows = '';
-            state.tickets.forEach(ticket => {
+            state.tickets.forEach((ticket, index) => {
+                const noteValue = ticket.notes || '';
+                const noteSelectValue = getNoteSelectValue(noteValue);
+                const customNoteVisible = noteSelectValue === '__custom__';
+                const noteOptionsHtml = NOTE_OPTIONS
+                    .map(option => `<option value="${escapeHtml(option)}" ${noteSelectValue === option ? 'selected' : ''}>${escapeHtml(option)}</option>`)
+                    .join('');
+
                 rows += `
                     <tr>
-                        <td>${ticket.turn || '-'}</td>
-                        <td>${ticket.assignedTo || '-'}</td>
-                        <td>${ticket.number || '-'}</td>
-                        <td>${ticket.ucn || '-'}</td>
-                        <td>${ticket.time || '-'}</td>
+                        <td>${escapeHtml(ticket.turn || '-')}</td>
+                        <td>${escapeHtml(ticket.assignedTo || '-')}</td>
+                        <td>${escapeHtml(ticket.number || '-')}</td>
+                        <td>${escapeHtml(ticket.ucn || '-')}</td>
+                        <td>
+                            <input
+                                type="text"
+                                class="table-input"
+                                value="${escapeHtml(ticket.customer || '')}"
+                                placeholder="Customer"
+                                onchange="updateTicketCustomer(${index}, this.value)"
+                            >
+                        </td>
+                        <td class="notes-cell">
+                            <select class="table-select" onchange="updateTicketNote(${index}, this.value)">
+                                <option value="" ${noteSelectValue === '' ? 'selected' : ''}>Select note...</option>
+                                ${noteOptionsHtml}
+                                <option value="__custom__" ${noteSelectValue === '__custom__' ? 'selected' : ''}>Custom...</option>
+                            </select>
+                            ${customNoteVisible ? `
+                                <input
+                                    type="text"
+                                    class="table-input notes-custom-input"
+                                    value="${escapeHtml(noteValue)}"
+                                    placeholder="Write custom note"
+                                    onchange="updateTicketCustomNote(${index}, this.value)"
+                                >
+                            ` : ''}
+                        </td>
+                        <td>${escapeHtml(ticket.time || '-')}</td>
                     </tr>
                 `;
             });
             tbody.innerHTML = rows;
+        }
+
+        function updateTicketCustomer(index, value) {
+            if (!state.tickets[index]) return;
+            state.tickets[index].customer = value.trim();
+            saveState();
+        }
+
+        function updateTicketNote(index, value) {
+            if (!state.tickets[index]) return;
+
+            if (!value) {
+                state.tickets[index].notes = '';
+                saveState();
+                updateTicketsTable();
+                return;
+            }
+
+            if (value === '__custom__') {
+                if (NOTE_OPTIONS.includes(state.tickets[index].notes || '')) {
+                    state.tickets[index].notes = '';
+                }
+                saveState();
+                updateTicketsTable();
+                return;
+            }
+
+            state.tickets[index].notes = value;
+            saveState();
+            updateTicketsTable();
+        }
+
+        function updateTicketCustomNote(index, value) {
+            if (!state.tickets[index]) return;
+            state.tickets[index].notes = value.trim();
+            saveState();
         }
 
         function createHandoverEmail() {
