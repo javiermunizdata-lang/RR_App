@@ -845,6 +845,7 @@
                     <table class="tickets-table">
                         <thead>
                             <tr>
+                                <th>HO</th>
                                 <th>Shift</th>
                                 <th>Name</th>
                                 <th>Ticket</th>
@@ -856,7 +857,7 @@
                         </thead>
                         <tbody id="tickets-table-body">
                             <tr>
-                                <td colspan="7">Loading data...</td>
+                                <td colspan="8">Loading data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1708,12 +1709,12 @@
             updateFilterAutocompleteOptions();
 
             if (!accessToken) {
-                tbody.innerHTML = '<tr><td colspan="7">Sign in to view tickets</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8">Sign in to view tickets</td></tr>';
                 return;
             }
 
             if (state.tickets.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7">No tickets yet</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8">No tickets yet</td></tr>';
                 return;
             }
 
@@ -1731,7 +1732,7 @@
 
             const filtered = getFilteredTicketsWithIndex();
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7">No rows match current filters</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8">No rows match current filters</td></tr>';
                 return;
             }
 
@@ -1746,6 +1747,15 @@
 
                 rows += `
                     <tr>
+                        <td>
+                            <input
+                                type="checkbox"
+                                class="member-checkbox"
+                                ${ticket.ho === false ? '' : 'checked'}
+                                onchange="updateTicketHo(${index}, this.checked, this)"
+                                title="Include in HO"
+                            >
+                        </td>
                         <td>${escapeHtml(ticket.turn || '-')}</td>
                         <td>${escapeHtml(ticket.assignedTo || '-')}</td>
                         <td>${escapeHtml(ticket.number || '-')}</td>
@@ -1806,6 +1816,13 @@
             flashSavedFeedback(element);
         }
 
+        function updateTicketHo(index, checked, element) {
+            if (!state.tickets[index]) return;
+            state.tickets[index].ho = !!checked;
+            saveState();
+            flashSavedFeedback(element);
+        }
+
         function updateTicketUcn(index, value, element) {
             if (!state.tickets[index]) return;
             state.tickets[index].ucn = value.trim().toUpperCase();
@@ -1855,8 +1872,9 @@
                 .replaceAll('"', '&quot;')
                 .replaceAll("'", '&#39;');
 
-            const rowsHtml = state.tickets.length
-                ? state.tickets.map(ticket => `
+            const handoverTickets = state.tickets.filter(ticket => ticket.ho !== false);
+            const rowsHtml = handoverTickets.length
+                ? handoverTickets.map(ticket => `
                     <tr>
                         <td style="border:1px solid #c7d0da;padding:7px 8px;">${esc(ticket.number)}</td>
                         <td style="border:1px solid #c7d0da;padding:7px 8px;">${esc(ticket.ucn)}</td>
