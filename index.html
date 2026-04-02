@@ -1865,7 +1865,7 @@
             flashSavedFeedback(element);
         }
 
-        function buildHandoverHtmlBody(dateLabel, senderSignature) {
+        function buildHandoverHtmlBody(dateLabel) {
             const esc = (value) => String(value || '')
                 .replaceAll('&', '&amp;')
                 .replaceAll('<', '&lt;')
@@ -1904,6 +1904,8 @@
                         </tr>
                         <tr>
                             <td style="padding:12px;">
+                                <div style="margin:0 0 12px 0;font-weight:700;text-decoration:underline;">Critical Incidents and Major Outages</div>
+                                <div style="margin:0 0 12px 0;min-height:22px;border-bottom:1px solid #d7dee7;"></div>
                                 <div style="margin:0 0 8px 0;font-weight:700;text-decoration:underline;">All Other Incidents for Handover</div>
                                 <table style="border-collapse:collapse;width:100%;margin-top:6px;">
                                     <thead>
@@ -1930,7 +1932,8 @@
                                     </tr>
                                 </table>
 
-                                <div style="margin-top:28px;font-weight:700;color:#1F497D;">${esc(senderSignature)}</div>
+                                <div style="margin-top:28px;min-height:96px;"></div>
+                                <div style="font-weight:700;color:#1F497D;">signature here</div>
                             </td>
                         </tr>
                     </table>
@@ -1975,8 +1978,7 @@
             const cc = 'gsoc@ipc.com';
             const dateLabel = getMadridDateForSubject();
             const subject = `HANDOVER: Madrid T1 Night ${dateLabel}`;
-            const senderSignature = state.currentUser || 'GSOC';
-            const htmlBody = buildHandoverHtmlBody(dateLabel, senderSignature);
+            const htmlBody = buildHandoverHtmlBody(dateLabel);
 
             try {
                 const eml = buildHandoverEml(to, cc, subject, htmlBody);
