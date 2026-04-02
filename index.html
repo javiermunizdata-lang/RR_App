@@ -659,7 +659,7 @@
                 </div>
 
                 <div class="sync-status" id="sync-status" style="display: none;">
-                    <span class="loading"></span> Syncing with Excel...
+                    <span class="loading"></span> Syncing data...
                 </div>
             </div>
 
@@ -1179,17 +1179,17 @@
             showStatus(`Ticket ${ticketNumber} assigned to ${next.person.name}${balanceMsg}`, 'success');
 
             saveState();
-            saveDataToExcel();
+            savePersistedData();
             updateDisplay();
         }
 
         // ==================== PERSISTENCE ====================
-        async function loadDataFromExcel() {
+        async function loadPersistedData() {
             // State is loaded by initializeState().
             return;
         }
 
-        async function saveDataToExcel() {
+        async function savePersistedData() {
             saveState();
             showStatus(cloudPersistenceEnabled ? 'Data saved to cloud' : 'Data saved locally', 'success');
         }
