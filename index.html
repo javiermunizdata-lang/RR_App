@@ -787,7 +787,7 @@
                     <div class="next-person-role" id="next-person-role">---</div>
                     <div class="balance-info" id="balance-info" style="display: none;"></div>
                     <div class="rules-info" id="rules-info-text">
-                        Rule: from 16:00, if Laters is below 50% of Early, tickets go only to Laters. After reaching threshold, assignment goes to the lowest individual load (RR on ties).
+                        Rule: from 16:00, if Laters is below 50% of Early, tickets go only to Laters. Once threshold is reached, assignment restarts from the lowest-load Early member, then continues with global RR.
                     </div>
                 </div>
 
@@ -1700,7 +1700,7 @@
             const rules = document.getElementById('rules-info-text');
             if (!rules) return;
             const latersStart = formatMinutes(getDisplayShiftWindow('laters').start);
-            rules.textContent = `Rule: from ${latersStart}, if Laters is below 50% of Early, tickets go only to Laters. After reaching threshold, assignment goes to the lowest individual load (RR on ties).`;
+            rules.textContent = `Rule: from ${latersStart}, if Laters is below 50% of Early, tickets go only to Laters. Once threshold is reached, assignment restarts from the lowest-load Early member, then continues with global RR.`;
         }
 
         function updateTicketsTable() {
