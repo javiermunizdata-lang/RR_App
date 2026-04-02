@@ -598,6 +598,19 @@
             border-radius: 8px;
         }
 
+        .table-filters {
+            display: grid;
+            grid-template-columns: 150px 1fr 1fr 1fr auto;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 980px) {
+            .table-filters {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .tickets-table {
             width: 100%;
             border-collapse: collapse;
@@ -655,6 +668,17 @@
 
         .notes-custom-input {
             margin-top: 6px;
+        }
+
+        .filter-clear-btn {
+            padding: 6px 10px;
+            border: 1px solid #cbd8e6;
+            background: #f3f7fb;
+            color: #2c3e50;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -740,6 +764,17 @@
         <div class="view-panel hidden" id="table-view">
             <div class="card">
                 <h2>Tickets Table</h2>
+                <div class="table-filters">
+                    <select class="table-select" id="filter-shift" onchange="setTableFilters()">
+                        <option value="">All shifts</option>
+                        <option value="Early">Early</option>
+                        <option value="Laters">Laters</option>
+                    </select>
+                    <input type="text" class="table-input" id="filter-name" placeholder="Filter by Name" oninput="setTableFilters()">
+                    <input type="text" class="table-input" id="filter-customer" placeholder="Filter by Customer" oninput="setTableFilters()">
+                    <input type="text" class="table-input" id="filter-ucn" placeholder="Filter by UCN" oninput="setTableFilters()">
+                    <button class="filter-clear-btn" onclick="clearTableFilters()">Clear</button>
+                </div>
                 <div class="tickets-table-wrapper" id="tickets-table-wrapper">
                     <table class="tickets-table">
                         <thead>
@@ -855,6 +890,12 @@
             teamConfig: {},
             teamOrder: { early: [], laters: [] },
             breaks: {}
+        };
+        let tableFilters = {
+            shift: '',
+            name: '',
+            customer: '',
+            ucn: ''
         };
         let activeAppView = 'overview';
 
@@ -1277,6 +1318,39 @@
             updateTicketsTable();
         }
 
+        function setTableFilters() {
+            tableFilters.shift = document.getElementById('filter-shift')?.value || '';
+            tableFilters.name = (document.getElementById('filter-name')?.value || '').trim().toLowerCase();
+            tableFilters.customer = (document.getElementById('filter-customer')?.value || '').trim().toLowerCase();
+            tableFilters.ucn = (document.getElementById('filter-ucn')?.value || '').trim().toLowerCase();
+            updateTicketsTable();
+        }
+
+        function clearTableFilters() {
+            const shift = document.getElementById('filter-shift');
+            const name = document.getElementById('filter-name');
+            const customer = document.getElementById('filter-customer');
+            const ucn = document.getElementById('filter-ucn');
+            if (shift) shift.value = '';
+            if (name) name.value = '';
+            if (customer) customer.value = '';
+            if (ucn) ucn.value = '';
+            tableFilters = { shift: '', name: '', customer: '', ucn: '' };
+            updateTicketsTable();
+        }
+
+        function getFilteredTicketsWithIndex() {
+            return state.tickets
+                .map((ticket, index) => ({ ticket, index }))
+                .filter(({ ticket }) => {
+                    const shiftMatch = !tableFilters.shift || (ticket.turn || '') === tableFilters.shift;
+                    const nameMatch = !tableFilters.name || (ticket.assignedTo || '').toLowerCase().includes(tableFilters.name);
+                    const customerMatch = !tableFilters.customer || (ticket.customer || '').toLowerCase().includes(tableFilters.customer);
+                    const ucnMatch = !tableFilters.ucn || (ticket.ucn || '').toLowerCase().includes(tableFilters.ucn);
+                    return shiftMatch && nameMatch && customerMatch && ucnMatch;
+                });
+        }
+
         function switchAppView(view) {
             activeAppView = view;
             const overviewBtn = document.getElementById('view-btn-overview');
@@ -1434,8 +1508,14 @@
                 return NOTE_OPTIONS.includes(note) ? note : '__custom__';
             };
 
+            const filtered = getFilteredTicketsWithIndex();
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7">No rows match current filters</td></tr>';
+                return;
+            }
+
             let rows = '';
-            state.tickets.forEach((ticket, index) => {
+            filtered.forEach(({ ticket, index }) => {
                 const noteValue = ticket.notes || '';
                 const noteSelectValue = getNoteSelectValue(noteValue);
                 const customNoteVisible = noteSelectValue === '__custom__';
