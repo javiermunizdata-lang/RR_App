@@ -599,23 +599,27 @@
         }
 
         .table-filters {
-            display: grid;
-            grid-template-columns: 140px minmax(170px, 1fr) minmax(170px, 1fr) minmax(170px, 1fr) auto;
+            display: flex;
+            flex-wrap: nowrap;
             gap: 8px;
             margin-bottom: 10px;
             align-items: center;
+            overflow-x: auto;
+            padding-bottom: 2px;
         }
 
-        @media (max-width: 980px) {
-            .table-filters {
-                grid-template-columns: 1fr 1fr;
-            }
+        .table-filters > * {
+            flex: 0 0 auto;
         }
 
-        @media (max-width: 640px) {
-            .table-filters {
-                grid-template-columns: 1fr;
-            }
+        .table-filters #filter-shift {
+            width: 140px;
+        }
+
+        .table-filters #filter-name,
+        .table-filters #filter-customer,
+        .table-filters #filter-ucn {
+            width: 190px;
         }
 
         .tickets-table {
@@ -925,6 +929,8 @@
             ucn: ''
         };
         let activeAppView = 'overview';
+        let lastBalancingState = false;
+        let pendingEarlyKickoffAfterBalance = false;
 
         // ==================== INITIALIZATION ====================
         function isFirebaseConfigReady() {
@@ -1246,24 +1252,42 @@
             return { persons, balancing: false };
         }
 
-        function getLowestLoadCandidates(persons) {
-            if (persons.length === 0) return [];
-            const minTickets = Math.min(...persons.map(person => person.tickets));
-            return persons.filter(person => person.tickets === minTickets);
-        }
-
         function getNextPerson(advance = true) {
             const { persons, balancing } = getActivePersonsForAssignment();
             if (persons.length === 0) return null;
 
-            const candidates = getLowestLoadCandidates(persons);
-            if (candidates.length === 0) return null;
-
-            state.rrIndex = state.rrIndex % candidates.length;
-            const person = candidates[state.rrIndex];
             if (advance) {
-                state.rrIndex = (state.rrIndex + 1) % candidates.length;
+                if (lastBalancingState && !balancing) {
+                    pendingEarlyKickoffAfterBalance = true;
+                }
+                lastBalancingState = balancing;
             }
+
+            let person = null;
+
+            // When balancing finishes, first assignment starts from Early member with lowest load.
+            if (!balancing && pendingEarlyKickoffAfterBalance) {
+                const earlyCandidates = persons.filter(p => p.turn === 'early');
+                if (earlyCandidates.length > 0) {
+                    const minEarlyTickets = Math.min(...earlyCandidates.map(p => p.tickets));
+                    person = earlyCandidates.find(p => p.tickets === minEarlyTickets) || earlyCandidates[0];
+
+                    if (advance) {
+                        const kickoffIndex = persons.findIndex(p => p.id === person.id);
+                        state.rrIndex = kickoffIndex >= 0 ? (kickoffIndex + 1) % persons.length : 0;
+                        pendingEarlyKickoffAfterBalance = false;
+                    }
+                }
+            }
+
+            if (!person) {
+                state.rrIndex = state.rrIndex % persons.length;
+                person = persons[state.rrIndex];
+                if (advance) {
+                    state.rrIndex = (state.rrIndex + 1) % persons.length;
+                }
+            }
+
             return { person, balancing };
         }
 
@@ -1687,6 +1711,8 @@
             state.tickets = [];
             state.rrIndex = 0;
             state.breaks = {};
+            lastBalancingState = false;
+            pendingEarlyKickoffAfterBalance = false;
             normalizeTeamState();
             recalculateTickets();
             saveState();
