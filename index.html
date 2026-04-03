@@ -567,12 +567,12 @@
 
             let person = null;
 
-            // When balancing finishes, first assignment starts from Early member with lowest load.
+            // When balancing finishes, first assignment starts from the last early assigned.
             if (!balancing && pendingEarlyKickoffAfterBalance) {
                 const earlyCandidates = persons.filter(p => p.turn === 'early');
                 if (earlyCandidates.length > 0) {
-                    const minEarlyTickets = Math.min(...earlyCandidates.map(p => p.tickets));
-                    person = earlyCandidates.find(p => p.tickets === minEarlyTickets) || earlyCandidates[0];
+                    const lastEarly = earlyCandidates.find(p => p.id === state.lastEarlyAssigned);
+                    person = lastEarly || earlyCandidates[0];
 
                     if (advance) {
                         const kickoffIndex = persons.findIndex(p => p.id === person.id);
