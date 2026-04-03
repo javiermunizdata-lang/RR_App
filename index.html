@@ -1191,6 +1191,14 @@
                 const noteOptionsHtml = NOTE_OPTIONS
                     .map(option => `<option value="${escapeHtml(option)}" ${noteSelectValue === option ? 'selected' : ''}>${escapeHtml(option)}</option>`)
                     .join('');
+                
+                // Calculate lock states for this row
+                const ucnLocked = isFieldLocked(index, 'ucn');
+                const customerLocked = isFieldLocked(index, 'customer');
+                const notesLocked = isFieldLocked(index, 'notes');
+                const ucnLockMsg = getFieldLockMessage(index, 'ucn');
+                const customerLockMsg = getFieldLockMessage(index, 'customer');
+                const notesLockMsg = getFieldLockMessage(index, 'notes');
 
                 rows += `
                     <tr>
@@ -1215,9 +1223,9 @@
                                 onchange="updateTicketUcn(${index}, this.value, this)"
                                 onfocus="acquireLock(${index}, 'ucn')"
                                 onblur="releaseLock(${index}, 'ucn')"
-                                ${isFieldLocked(${index}, 'ucn') ? 'disabled' : ''}
-                                title="${getFieldLockMessage(${index}, 'ucn')}"
-                                style="${isFieldLocked(${index}, 'ucn') ? 'background-color: #f0f0f0; opacity: 0.6;' : ''}"
+                                ${ucnLocked ? 'disabled' : ''}
+                                title="${ucnLockMsg}"
+                                style="${ucnLocked ? 'background-color: #f0f0f0; opacity: 0.6;' : ''}"
                             >
                         </td>
                         <td>
@@ -1229,13 +1237,13 @@
                                 onchange="updateTicketCustomer(${index}, this.value, this)"
                                 onfocus="acquireLock(${index}, 'customer')"
                                 onblur="releaseLock(${index}, 'customer')"
-                                ${isFieldLocked(${index}, 'customer') ? 'disabled' : ''}
-                                title="${getFieldLockMessage(${index}, 'customer')}"
-                                style="${isFieldLocked(${index}, 'customer') ? 'background-color: #f0f0f0; opacity: 0.6;' : ''}"
+                                ${customerLocked ? 'disabled' : ''}
+                                title="${customerLockMsg}"
+                                style="${customerLocked ? 'background-color: #f0f0f0; opacity: 0.6;' : ''}"
                             >
                         </td>
                         <td class="notes-cell">
-                            <select class="table-select" onchange="updateTicketNote(${index}, this.value, this)" ${isFieldLocked(${index}, 'notes') ? 'disabled' : ''} title="${getFieldLockMessage(${index}, 'notes')}" style="${isFieldLocked(${index}, 'notes') ? 'background-color: #f0f0f0; opacity: 0.6;' : ''}">
+                            <select class="table-select" onchange="updateTicketNote(${index}, this.value, this)" ${notesLocked ? 'disabled' : ''} title="${notesLockMsg}" style="${notesLocked ? 'background-color: #f0f0f0; opacity: 0.6;' : ''}">
                                 <option value="" ${noteSelectValue === '' ? 'selected' : ''}>Select note...</option>
                                 ${noteOptionsHtml}
                                 <option value="__custom__" ${noteSelectValue === '__custom__' ? 'selected' : ''}>Custom...</option>
@@ -1249,9 +1257,9 @@
                                     onchange="updateTicketCustomNote(${index}, this.value, this)"
                                     onfocus="acquireLock(${index}, 'notes')"
                                     onblur="releaseLock(${index}, 'notes')"
-                                    ${isFieldLocked(${index}, 'notes') ? 'disabled' : ''}
-                                    title="${getFieldLockMessage(${index}, 'notes')}"
-                                    style="${isFieldLocked(${index}, 'notes') ? 'background-color: #f0f0f0; opacity: 0.6;' : ''}"
+                                    ${notesLocked ? 'disabled' : ''}
+                                    title="${notesLockMsg}"
+                                    style="${notesLocked ? 'background-color: #f0f0f0; opacity: 0.6;' : ''}"
                                 >
                             ` : ''}
                         </td>
