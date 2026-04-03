@@ -38,6 +38,7 @@
         <div class="view-tabs">
             <button class="view-tab-btn active" id="view-btn-overview" onclick="switchAppView('overview')">Overview</button>
             <button class="view-tab-btn" id="view-btn-table" onclick="switchAppView('table')">Tickets Table</button>
+            <button class="view-tab-btn" id="view-btn-logs" onclick="switchAppView('logs')">Logs</button>
         </div>
 
         <div class="view-panel" id="overview-view">
@@ -124,6 +125,28 @@
                             <tr>
                                 <td colspan="8">Loading data...</td>
                             </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="view-panel hidden" id="logs-view">
+            <div class="card">
+                <h2>Action Logs</h2>
+                <button class="btn-secondary" onclick="clearAllLogs()" style="margin-bottom: 10px;">Clear Logs</button>
+                <div class="logs-table-wrapper" id="logs-table-wrapper" style="max-height: 600px; overflow-y: auto;">
+                    <table class="logs-table" style="width:100%; border-collapse: collapse; font-size: 12px;">
+                        <thead>
+                            <tr style="background: #f0f0f0; border-bottom: 2px solid #333;">
+                                <th style="padding: 8px; text-align: left;">Timestamp</th>
+                                <th style="padding: 8px; text-align: left;">User</th>
+                                <th style="padding: 8px; text-align: left;">Action</th>
+                                <th style="padding: 8px; text-align: left;">Details</th>
+                                <th style="padding: 8px; text-align: left;">Target</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-table-body">
                         </tbody>
                     </table>
                 </div>
@@ -222,7 +245,9 @@
             teamConfig: {},
             teamOrder: { early: [], laters: [] },
             breaks: {},
-            lastModified: null
+            lastModified: null,
+            actionLogs: [],
+            fieldLocks: {}
         };
         let tableFilters = {
             shift: '',
@@ -234,6 +259,8 @@
         let displayTimeZone = 'Europe/Madrid';
         let lastBalancingState = false;
         let pendingEarlyKickoffAfterBalance = false;
+        let currentWindowUser = 'User';
+        let sessionTabId = Math.random().toString(36).substring(7);
 
         // ==================== INITIALIZATION ====================
         function isFirebaseConfigReady() {
@@ -261,6 +288,8 @@
             state.teamOrder = loaded?.teamOrder || getDefaultTeamOrder();
             state.breaks = loaded?.breaks || {};
             state.lastModified = loaded?.lastModified || null;
+            state.actionLogs = loaded?.actionLogs || [];
+            state.fieldLocks = loaded?.fieldLocks || {};
         }
 
         function getSerializableState() {
@@ -270,7 +299,9 @@
                 teamConfig: state.teamConfig,
                 teamOrder: state.teamOrder,
                 breaks: state.breaks,
-                lastModified: new Date().getTime()
+                lastModified: new Date().getTime(),
+                actionLogs: state.actionLogs.slice(-500),
+                fieldLocks: state.fieldLocks
             };
         }
 
@@ -415,6 +446,67 @@
             }
         }
 
+        // ==================== ACTION LOGGING ====================
+        function addLog(action, details = '', target = '') {
+            const log = {
+                timestamp: new Date().getTime(),
+                user: currentWindowUser,
+                action: action,
+                details: details || '',
+                target: target || ''
+            };
+            state.actionLogs.push(log);
+            if (state.actionLogs.length > 500) {
+                state.actionLogs.shift();
+            }
+            saveState();
+            if (activeAppView === 'logs') {
+                updateLogsDisplay();
+            }
+        }
+
+        // ==================== FIELD LOCKING ====================
+        function getLockKey(index, fieldName) {
+            return `${index}_${fieldName}`;
+        }
+
+        function acquireLock(ticketIndex, fieldName) {
+            const key = getLockKey(ticketIndex, fieldName);
+            state.fieldLocks[key] = {
+                user: currentWindowUser,
+                timestamp: new Date().getTime(),
+                tabId: sessionTabId
+            };
+            saveState();
+        }
+
+        function releaseLock(ticketIndex, fieldName) {
+            const key = getLockKey(ticketIndex, fieldName);
+            delete state.fieldLocks[key];
+            saveState();
+        }
+
+        function isFieldLocked(ticketIndex, fieldName) {
+            const key = getLockKey(ticketIndex, fieldName);
+            const lock = state.fieldLocks[key];
+            if (!lock) return null;
+            
+            const isOwnLock = lock.user === currentWindowUser && lock.tabId === sessionTabId;
+            const isStale = (new Date().getTime() - lock.timestamp) > 60000;
+            
+            if (isStale) {
+                delete state.fieldLocks[key];
+                return null;
+            }
+            
+            return isOwnLock ? null : lock.user;
+        }
+
+        function getFieldLockMessage(ticketIndex, fieldName) {
+            const lockedBy = isFieldLocked(ticketIndex, fieldName);
+            return lockedBy ? `Editando: ${lockedBy}` : '';
+        }
+
         function normalizeTeamState() {
             const validIds = new Set(Object.keys(MEMBERS_BY_ID));
             const sanitizedConfig = {};
@@ -470,6 +562,9 @@
             } else {
                 delete state.breaks[memberId];
             }
+            const memberName = MEMBERS_BY_ID[memberId]?.name || memberId;
+            const breakStatus = state.breaks[memberId] ? 'ON' : 'OFF';
+            addLog('TOGGLE_BREAK', breakStatus, memberName);
             saveState();
             updateDisplay();
         }
@@ -711,6 +806,7 @@
             const balanceMsg = next.balancing ? ' (Laters balancing)' : '';
             showStatus(`Ticket ${ticketNumber} assigned to ${next.person.name}${balanceMsg}`, 'success');
 
+            addLog('ASSIGN_TICKET', ticketNumber, next.person.name);
             saveState();
             savePersistedData();
             updateDisplay();
@@ -802,17 +898,26 @@
             activeAppView = view;
             const overviewBtn = document.getElementById('view-btn-overview');
             const tableBtn = document.getElementById('view-btn-table');
+            const logsBtn = document.getElementById('view-btn-logs');
             const overviewView = document.getElementById('overview-view');
             const tableView = document.getElementById('table-view');
+            const logsView = document.getElementById('logs-view');
+            
             const showOverview = view === 'overview';
+            const showTable = view === 'table';
+            const showLogs = view === 'logs';
 
             overviewBtn.classList.toggle('active', showOverview);
-            tableBtn.classList.toggle('active', !showOverview);
+            tableBtn.classList.toggle('active', showTable);
+            logsBtn.classList.toggle('active', showLogs);
             overviewView.classList.toggle('hidden', !showOverview);
-            tableView.classList.toggle('hidden', showOverview);
+            tableView.classList.toggle('hidden', !showTable);
+            logsView.classList.toggle('hidden', !showLogs);
 
-            if (!showOverview) {
+            if (showTable) {
                 updateTicketsTable();
+            } else if (showLogs) {
+                updateLogsDisplay();
             }
         }
 
@@ -1108,6 +1213,11 @@
                                 value="${escapeHtml(ticket.ucn || '')}"
                                 placeholder="UCN"
                                 onchange="updateTicketUcn(${index}, this.value, this)"
+                                onfocus="acquireLock(${index}, 'ucn')"
+                                onblur="releaseLock(${index}, 'ucn')"
+                                ${isFieldLocked(${index}, 'ucn') ? 'disabled' : ''}
+                                title="${getFieldLockMessage(${index}, 'ucn')}"
+                                style="${isFieldLocked(${index}, 'ucn') ? 'background-color: #f0f0f0; opacity: 0.6;' : ''}"
                             >
                         </td>
                         <td>
@@ -1117,10 +1227,15 @@
                                 value="${escapeHtml(ticket.customer || '')}"
                                 placeholder="Customer"
                                 onchange="updateTicketCustomer(${index}, this.value, this)"
+                                onfocus="acquireLock(${index}, 'customer')"
+                                onblur="releaseLock(${index}, 'customer')"
+                                ${isFieldLocked(${index}, 'customer') ? 'disabled' : ''}
+                                title="${getFieldLockMessage(${index}, 'customer')}"
+                                style="${isFieldLocked(${index}, 'customer') ? 'background-color: #f0f0f0; opacity: 0.6;' : ''}"
                             >
                         </td>
                         <td class="notes-cell">
-                            <select class="table-select" onchange="updateTicketNote(${index}, this.value, this)">
+                            <select class="table-select" onchange="updateTicketNote(${index}, this.value, this)" ${isFieldLocked(${index}, 'notes') ? 'disabled' : ''} title="${getFieldLockMessage(${index}, 'notes')}" style="${isFieldLocked(${index}, 'notes') ? 'background-color: #f0f0f0; opacity: 0.6;' : ''}">
                                 <option value="" ${noteSelectValue === '' ? 'selected' : ''}>Select note...</option>
                                 ${noteOptionsHtml}
                                 <option value="__custom__" ${noteSelectValue === '__custom__' ? 'selected' : ''}>Custom...</option>
@@ -1132,6 +1247,11 @@
                                     value="${escapeHtml(noteValue)}"
                                     placeholder="Write custom note"
                                     onchange="updateTicketCustomNote(${index}, this.value, this)"
+                                    onfocus="acquireLock(${index}, 'notes')"
+                                    onblur="releaseLock(${index}, 'notes')"
+                                    ${isFieldLocked(${index}, 'notes') ? 'disabled' : ''}
+                                    title="${getFieldLockMessage(${index}, 'notes')}"
+                                    style="${isFieldLocked(${index}, 'notes') ? 'background-color: #f0f0f0; opacity: 0.6;' : ''}"
                                 >
                             ` : ''}
                         </td>
@@ -1154,13 +1274,16 @@
         function updateTicketCustomer(index, value, element) {
             if (!state.tickets[index]) return;
             state.tickets[index].customer = value.trim();
+            addLog('EDIT_FIELD', 'customer', state.tickets[index].assignedTo);
             saveState();
             flashSavedFeedback(element);
+            releaseLock(index, 'customer');
         }
 
         function updateTicketHo(index, checked, element) {
             if (!state.tickets[index]) return;
             state.tickets[index].ho = !!checked;
+            addLog('EDIT_FIELD', 'ho', state.tickets[index].assignedTo);
             saveState();
             flashSavedFeedback(element);
         }
@@ -1168,8 +1291,10 @@
         function updateTicketUcn(index, value, element) {
             if (!state.tickets[index]) return;
             state.tickets[index].ucn = value.trim().toUpperCase();
+            addLog('EDIT_FIELD', 'ucn', state.tickets[index].assignedTo);
             saveState();
             flashSavedFeedback(element);
+            releaseLock(index, 'ucn');
         }
 
         function updateTicketNote(index, value, element) {
@@ -1177,9 +1302,11 @@
 
             if (!value) {
                 state.tickets[index].notes = '';
+                addLog('EDIT_FIELD', 'notes', state.tickets[index].assignedTo);
                 saveState();
                 flashSavedFeedback(element);
                 updateTicketsTable();
+                releaseLock(index, 'notes');
                 return;
             }
 
@@ -1194,16 +1321,20 @@
             }
 
             state.tickets[index].notes = value;
+            addLog('EDIT_FIELD', 'notes', state.tickets[index].assignedTo);
             saveState();
             flashSavedFeedback(element);
             updateTicketsTable();
+            releaseLock(index, 'notes');
         }
 
         function updateTicketCustomNote(index, value, element) {
             if (!state.tickets[index]) return;
             state.tickets[index].notes = value.trim();
+            addLog('EDIT_FIELD', 'custom_notes', state.tickets[index].assignedTo);
             saveState();
             flashSavedFeedback(element);
+            releaseLock(index, 'notes');
         }
 
         function buildHandoverHtmlBody(dateLabel) {
@@ -1346,6 +1477,51 @@
             }
         }
 
+        function updateLogsDisplay() {
+            const tbody = document.getElementById('logs-table-body');
+            if (!tbody) return;
+
+            if (state.actionLogs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="padding: 10px; text-align: center;">No logs yet</td></tr>';
+                return;
+            }
+
+            let rows = '';
+            const logsToDisplay = [...state.actionLogs].reverse();
+            logsToDisplay.forEach(log => {
+                const date = new Date(log.timestamp);
+                const timeStr = date.toLocaleTimeString('es-ES');
+                const dateStr = date.toLocaleDateString('es-ES');
+                const fullTime = `${dateStr} ${timeStr}`;
+
+                rows += `
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 8px;">${fullTime}</td>
+                        <td style="padding: 8px;">${log.user}</td>
+                        <td style="padding: 8px;"><strong>${log.action}</strong></td>
+                        <td style="padding: 8px;">${log.details}</td>
+                        <td style="padding: 8px;">${log.target}</td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = rows;
+            
+            setTimeout(() => {
+                const wrapper = document.getElementById('logs-table-wrapper');
+                if (wrapper) wrapper.scrollTop = wrapper.scrollHeight;
+            }, 0);
+        }
+
+        function clearAllLogs() {
+            if (confirm('¿Estás seguro de que quieres borrar todos los logs?')) {
+                state.actionLogs = [];
+                saveState();
+                updateLogsDisplay();
+                showStatus('Logs cleared', 'success');
+            }
+        }
+
         function resetAllData() {
             const confirmed = window.confirm('Reset all data? This will clear tickets and set everyone ON without changing current positions.');
             if (!confirmed) return;
@@ -1357,6 +1533,7 @@
             pendingEarlyKickoffAfterBalance = false;
             normalizeTeamState();
             recalculateTickets();
+            addLog('RESET_ALL_DATA', 'All tickets and breaks cleared', '');
             saveState();
             updateDisplay();
             showStatus('Data reset completed', 'success');
