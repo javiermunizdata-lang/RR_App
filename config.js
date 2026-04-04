@@ -21,7 +21,7 @@ export const LATERS_TURN = {
 
 // ─── NC WINDOWS ─────────────────────────────────────────────────────────────
 // The time window during which the NC slot (position 0) is active per turn.
-export const NC_EARLY_ACTIVE  = { start: 20, end: 23 };
+export const NC_EARLY_ACTIVE = { start: 20, end: 23 };
 export const NC_LATERS_ACTIVE = { start: 16, end: 20 };
 
 // ─── ASSIGNMENT RULES ───────────────────────────────────────────────────────
@@ -38,9 +38,9 @@ export const NOTE_OPTIONS = [
 ];
 
 // ─── PERSISTENCE KEYS ───────────────────────────────────────────────────────
-export const LOCAL_STATE_KEY   = 'ticketAssignmentState';
-export const CLOUD_COLLECTION  = 'rrApp';
-export const CLOUD_DOC_ID      = 'currentState';
+export const LOCAL_STATE_KEY = 'ticketAssignmentState';
+export const CLOUD_COLLECTION = 'rrApp';
+export const CLOUD_DOC_ID = 'currentState';
 
 // ─── FIREBASE ───────────────────────────────────────────────────────────────
 export const FIREBASE_CONFIG = {
@@ -69,18 +69,18 @@ export const MSAL_CONFIG = {
 // Once the app runs, state.teamOrder controls actual placement (drag & drop).
 
 export const ALL_MEMBERS = [
-    { id: 'fernando',    name: 'Fernando',    defaultTurn: 'early'  },
-    { id: 'octavio',     name: 'Octavio',     defaultTurn: 'early'  },
-    { id: 'ana-maria',   name: 'Ana María',   defaultTurn: 'early'  },
-    { id: 'enrique',     name: 'Enrique',     defaultTurn: 'early'  },
-    { id: 'gabrielius',  name: 'Gabrielius',  defaultTurn: 'early'  },
-    { id: 'luisa',       name: 'Luisa',       defaultTurn: 'early'  },
-    { id: 'mad',         name: 'Mad',         defaultTurn: 'laters' },
-    { id: 'javier',      name: 'Javier',      defaultTurn: 'laters' },
-    { id: 'francisco',   name: 'Francisco',   defaultTurn: 'laters' },
-    { id: 'alvaro',      name: 'Alvaro',      defaultTurn: 'laters' },
-    { id: 'alberto',     name: 'Alberto',     defaultTurn: 'laters' },
-    { id: 'julian',      name: 'Julian',      defaultTurn: 'laters' },
+    { id: 'fernando', name: 'Fernando', defaultTurn: 'early' },
+    { id: 'octavio', name: 'Octavio', defaultTurn: 'laters' },
+    { id: 'ana-maria', name: 'Ana María', defaultTurn: 'early' },
+    { id: 'enrique', name: 'Enrique', defaultTurn: 'laters' },
+    { id: 'gabrielius', name: 'Gabrielius', defaultTurn: 'laters' },
+    { id: 'luisa', name: 'Luisa', defaultTurn: 'early' },
+    { id: 'mad', name: 'Mad', defaultTurn: 'laters' },
+    { id: 'javier', name: 'Javier', defaultTurn: 'early' },
+    { id: 'francisco', name: 'Francisco', defaultTurn: 'laters' },
+    { id: 'alvaro', name: 'Alvaro', defaultTurn: 'early' },
+    { id: 'alberto', name: 'Alberto', defaultTurn: 'laters' },
+    { id: 'julian', name: 'Julian', defaultTurn: 'early' },
 ];
 
 // Lookup map: member ID → member definition
