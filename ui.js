@@ -246,6 +246,7 @@ export function updateTicketsTable() {
 
     tbody.innerHTML = filtered.map(({ ticket, index }) => {
         const noteValue = ticket.notes || '';
+        const isCustom = noteValue === '__custom__' || (noteValue && !NOTE_OPTIONS.includes(noteValue));
         
         return `
             <tr>
@@ -256,10 +257,18 @@ export function updateTicketsTable() {
                 <td><input type="text" class="table-input" value="${escapeHtml(ticket.ucn)}" onchange="app.updateTicketUcn(${index}, this.value)"></td>
                 <td><input type="text" class="table-input" value="${escapeHtml(ticket.customer)}" onchange="app.updateTicketCustomer(${index}, this.value)"></td>
                 <td class="notes-cell" style="min-width: 150px;">
-                    <input type="text" class="table-input" list="notes-list-${index}" value="${escapeHtml(noteValue)}" placeholder="Select or type note..." onchange="app.updateTicketNote(${index}, this.value)">
-                    <datalist id="notes-list-${index}">
-                        ${NOTE_OPTIONS.map(opt => `<option value="${opt}">`).join('')}
-                    </datalist>
+                    ${isCustom ? `
+                        <div style="display:flex; gap:4px; align-items:center;">
+                            <input type="text" class="table-input" style="flex:1;" placeholder="Type custom note..." value="${noteValue === '__custom__' ? '' : escapeHtml(noteValue)}" onchange="app.updateTicketCustomNote(${index}, this.value)">
+                            <button onclick="app.updateTicketCustomNote(${index}, '')" style="background:none; border:none; cursor:pointer; color:#e74c3c; font-weight:bold; font-size:14px; padding:0 4px;" title="Clear Note">✕</button>
+                        </div>
+                    ` : `
+                        <select class="table-select" onchange="app.updateTicketNote(${index}, this.value)">
+                            <option value="">Select note...</option>
+                            ${NOTE_OPTIONS.map(opt => `<option value="${opt}" ${noteValue === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                            <option value="__custom__">Custom...</option>
+                        </select>
+                    `}
                 </td>
                 <td>${escapeHtml(formatTicketTime(ticket))}</td>
             </tr>

@@ -86,6 +86,17 @@ window.app = {
         updateDisplay();
         saveStateToCloud();
     },
+    updateTicketCustomNote: (index, value) => {
+        if (!state.tickets[index]) return;
+        state.tickets[index].notes = value.trim();
+        if (value.trim() === '') {
+            state.tickets[index].notes = '';
+        }
+        addLog('EDIT_FIELD', 'custom_note', state.tickets[index].assignedTo);
+        saveState();
+        updateDisplay();
+        saveStateToCloud();
+    },
     
     // System
     resetAllData: () => {
