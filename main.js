@@ -132,6 +132,9 @@ async function initApp() {
         updateDisplay();
     }
     
+    // Clean up any remaining legacy data and sync it back to the cloud
+    saveStateToCloud();
+    
     // Enable real-time sync with UI update
     setupRealtimeSync(() => {
         updateDisplay();

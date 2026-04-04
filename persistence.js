@@ -1,7 +1,7 @@
 // persistence.js
 // Firebase persistence for Madrid RR App
 
-import { state, saveState, getSerializableState } from './state.js';
+import { state, saveState, getSerializableState, sanitizeState } from './state.js';
 import { FIREBASE_CONFIG, CLOUD_COLLECTION, CLOUD_DOC_ID } from './config.js';
 
 let firestoreDb = null;
@@ -82,7 +82,6 @@ export function applyRemoteState(remoteData) {
     // Check timestamps if provided in original
     if (remoteData.lastModified && state.lastModified && remoteData.lastModified <= state.lastModified) {
         // Local is newer or same, don't overwrite if it was a sync event
-        // But for initial load, we might want it anyway.
     }
 
     if (remoteData.tickets) state.tickets = remoteData.tickets;
@@ -92,6 +91,10 @@ export function applyRemoteState(remoteData) {
     if (remoteData.breaks) state.breaks = remoteData.breaks;
     if (remoteData.actionLogs) state.actionLogs = remoteData.actionLogs;
     if (remoteData.fieldLocks) state.fieldLocks = remoteData.fieldLocks;
+    
+    // IMPORTANT: After applying remote data, ensure IDs are unified and invalid ones are gone
+    sanitizeState();
+    
     state.lastModified = remoteData.lastModified || new Date().getTime();
 }
 

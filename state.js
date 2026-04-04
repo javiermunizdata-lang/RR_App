@@ -98,35 +98,50 @@ export function addLog(action, details = '', target = '') {
     saveState();
 }
 
-// Initialize config if it doesn't exist
-export function initializeTeamConfig() {
-    // 1. Initialize per-member config if missing
-    ALL_MEMBERS.forEach(member => {
-        if (!state.teamConfig[member.id]) {
-            state.teamConfig[member.id] = {
-                name: member.name,
-                turn: member.defaultTurn,
-                tickets: 0
-            };
+// Sanitize state to ensure ONLY valid IDs from config.js are used
+export function sanitizeState() {
+    const validIds = new Set(ALL_MEMBERS.map(m => m.id));
+    
+    // 1. Clean teamOrder
+    ['early', 'laters'].forEach(turn => {
+        const currentIds = state.teamOrder[turn] || [];
+        state.teamOrder[turn] = currentIds.filter(id => validIds.has(id));
+        
+        // If the turn list is empty (e.g. after cleaning old IDs), re-fill with defaults
+        if (state.teamOrder[turn].length === 0) {
+            state.teamOrder[turn] = ALL_MEMBERS.filter(m => m.defaultTurn === turn).map(m => m.id);
         }
     });
 
-    // 2. Validate teamOrder: If it's empty or contains invalid IDs (e.g. from an old version), reset it
-    const validIds = new Set(ALL_MEMBERS.map(m => m.id));
-    const isOrderValid = (turn) => 
-        state.teamOrder[turn] && 
-        state.teamOrder[turn].length > 0 && 
-        state.teamOrder[turn].every(id => validIds.has(id));
+    // 2. Add missing members to teamOrder if they are not there
+    ALL_MEMBERS.forEach(m => {
+        const alreadyInAny = state.teamOrder.early.includes(m.id) || state.teamOrder.laters.includes(m.id);
+        if (!alreadyInAny) {
+            state.teamOrder[m.defaultTurn].push(m.id);
+        }
+    });
 
-    if (!isOrderValid('early') || !isOrderValid('laters')) {
-        console.warn('Invalid or old teamOrder detected. Resetting to defaults...');
-        state.teamOrder = {
-            early: ALL_MEMBERS.filter(m => m.defaultTurn === 'early').map(m => m.id),
-            laters: ALL_MEMBERS.filter(m => m.defaultTurn === 'laters').map(m => m.id)
+    // 3. Sync teamConfig with current names and tickets
+    const newTeamConfig = {};
+    ALL_MEMBERS.forEach(m => {
+        const existing = state.teamConfig[m.id] || {};
+        newTeamConfig[m.id] = {
+            name: m.name,
+            turn: state.teamOrder.early.includes(m.id) ? 'early' : 'laters',
+            tickets: Number.isInteger(existing.tickets) ? existing.tickets : 0
         };
-        saveState();
-    }
+    });
+    state.teamConfig = newTeamConfig;
+
+    saveState();
 }
+
+// Initialize config and order, ensuring ONLY valid IDs from config.js are used
+export function initializeTeamConfig() {
+    sanitizeState();
+}
+
+
 
 export function getSerializableState() {
     return {
