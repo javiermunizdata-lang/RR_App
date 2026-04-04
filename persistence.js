@@ -78,11 +78,6 @@ export async function loadStateFromCloud() {
 
 export function applyRemoteState(remoteData) {
     if (!remoteData) return;
-    
-    // Check timestamps if provided in original
-    if (remoteData.lastModified && state.lastModified && remoteData.lastModified <= state.lastModified) {
-        // Local is newer or same, don't overwrite if it was a sync event
-    }
 
     if (remoteData.tickets) state.tickets = remoteData.tickets;
     if (remoteData.rrIndex !== undefined) state.rrIndex = remoteData.rrIndex;
@@ -113,12 +108,10 @@ export async function setupRealtimeSync(onUpdateCallback) {
                 if (doc.exists) {
                     const remoteData = doc.data();
                     
-                    // Comparison logic from original source (recalculated tickets handled in ui)
-                    if (remoteData.lastModified && (!state.lastModified || remoteData.lastModified > state.lastModified)) {
-                        console.log('Real-time sync: Applying remote changes', remoteData.lastModified);
-                        applyRemoteState(remoteData);
-                        if (onUpdateCallback) onUpdateCallback();
-                    }
+                    // Cloud snapshot is the ultimate source of truth, bypass local clock checks
+                    console.log('Real-time sync: Applying remote changes', remoteData.lastModified);
+                    applyRemoteState(remoteData);
+                    if (onUpdateCallback) onUpdateCallback();
                 }
             }, error => {
                 console.error('Real-time sync error:', error);
