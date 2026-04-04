@@ -36,7 +36,18 @@ export function getActivePersonsForAssignment() {
     if (latersActive && isLatersInBalance()) {
         const persons = [];
         const latersMembers = getAssignableMembers('laters');
+        
+        // --- PARCHE DE RESCATE ---
+        // Evaluar cuántos tickets tiene el Laters más saturado en este momento.
+        const maxLatersTickets = latersMembers.length > 0 ? Math.max(...latersMembers.map(m => m.tickets || 0)) : 0;
+        
+        // Rescatar a cualquier integrante de Early que tenga esos tickets o menos.
+        const earlyMembers = getAssignableMembers('early');
+        const hungryEarlyMembers = earlyMembers.filter(m => (m.tickets || 0) <= maxLatersTickets);
+        
         persons.push(...latersMembers);
+        persons.push(...hungryEarlyMembers);
+        
         return { persons, balancing: true };
     }
 
