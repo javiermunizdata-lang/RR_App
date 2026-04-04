@@ -83,6 +83,18 @@ window.app = {
         state.tickets[index].notes = value;
         addLog('EDIT_FIELD', 'notes', state.tickets[index].assignedTo);
         saveState();
+        
+        if (value === '__custom__') {
+            document.activeElement?.blur();
+            updateDisplay();
+            setTimeout(() => {
+                const input = document.getElementById(`custom-note-input-${index}`);
+                if (input) input.focus();
+            }, 50);
+            saveStateToCloud();
+            return;
+        }
+        
         updateDisplay();
         saveStateToCloud();
     },

@@ -259,7 +259,7 @@ export function updateTicketsTable() {
                 <td class="notes-cell" style="min-width: 150px;">
                     ${isCustom ? `
                         <div style="display:flex; gap:4px; align-items:center;">
-                            <input type="text" class="table-input" style="flex:1;" placeholder="Type custom note..." value="${noteValue === '__custom__' ? '' : escapeHtml(noteValue)}" onchange="app.updateTicketCustomNote(${index}, this.value)">
+                            <input type="text" id="custom-note-input-${index}" class="table-input" style="flex:1;" placeholder="Type custom note..." value="${noteValue === '__custom__' ? '' : escapeHtml(noteValue)}" onchange="app.updateTicketCustomNote(${index}, this.value)">
                             <button onclick="app.updateTicketCustomNote(${index}, '')" style="background:none; border:none; cursor:pointer; color:#e74c3c; font-weight:bold; font-size:14px; padding:0 4px;" title="Clear Note">✕</button>
                         </div>
                     ` : `
