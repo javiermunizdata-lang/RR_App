@@ -365,10 +365,10 @@ export async function downloadHandoverEml() {
         <div style="font-family:Arial;font-size:13px;">
             <h2 style="color:#7030A0;">GSOC Daily Handover - ${dateLabel}</h2>
 
-            <h3 style="color:#C00000;">Critical incidentes, etc</h3>
+            <h3 style="color:#C00000;">Critical Incidents and Major Outages</h3>
             ${ciLinesHtml}
 
-            <h3 style="color:#7030A0;">Standard Handover</h3>
+            <h3 style="color:#7030A0;">All Other Incidents for Handover</h3>
             <table style="border-collapse:collapse;width:100%;border:1px solid #000;">
                 <tr style="background:#7030A0;color:white;"><th>Ticket</th><th>UCN</th><th>Customer</th><th>Notes</th></tr>
                 ${rowsHtml}
