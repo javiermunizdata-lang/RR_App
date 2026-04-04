@@ -77,8 +77,14 @@ export function getNextPerson(advance = true) {
 
     let person = null;
 
+    let isKickoff = !balancing && pendingEarlyKickoffAfterBalance;
+    // Simulate the transition for UI prediction without mutating global flags
+    if (!advance && lastBalancingState && !balancing) {
+        isKickoff = true;
+    }
+
     // When balancing finishes, restart from the lowest load Early member (as per rules text)
-    if (!balancing && pendingEarlyKickoffAfterBalance) {
+    if (isKickoff) {
         const earlyCandidates = persons.filter(p => p.turn === 'early');
         if (earlyCandidates.length > 0) {
             // Find member with least tickets
@@ -94,8 +100,10 @@ export function getNextPerson(advance = true) {
     }
 
     if (!person) {
-        state.rrIndex = state.rrIndex % persons.length;
-        const basePerson = persons[state.rrIndex];
+        const currentIndex = state.rrIndex % persons.length;
+        if (advance) state.rrIndex = currentIndex; // safely apply wrap if advancing
+        
+        const basePerson = persons[currentIndex];
         const teamTurn = basePerson.turn;
 
         // Balance workload within the targeted team
@@ -107,8 +115,8 @@ export function getNextPerson(advance = true) {
         candidates.sort((a, b) => {
             const idxA = persons.findIndex(p => p.id === a.id);
             const idxB = persons.findIndex(p => p.id === b.id);
-            const distA = (idxA - state.rrIndex + persons.length) % persons.length;
-            const distB = (idxB - state.rrIndex + persons.length) % persons.length;
+            const distA = (idxA - currentIndex + persons.length) % persons.length;
+            const distB = (idxB - currentIndex + persons.length) % persons.length;
             return distA - distB;
         });
 
@@ -116,7 +124,7 @@ export function getNextPerson(advance = true) {
 
         if (advance) {
             // Advance sequential pointer to give the next sub-turn to the next expected slot/team
-            state.rrIndex = (state.rrIndex + 1) % persons.length;
+            state.rrIndex = (currentIndex + 1) % persons.length;
         }
     }
 
