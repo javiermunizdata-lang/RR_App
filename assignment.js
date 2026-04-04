@@ -71,7 +71,8 @@ export function getNextPerson(advance = true) {
         const earlyCandidates = persons.filter(p => p.turn === 'early');
         if (earlyCandidates.length > 0) {
             // Find member with least tickets
-            person = earlyCandidates.reduce((min, p) => (p.tickets < min.tickets ? p : min), earlyCandidates[0]);
+            const minT = Math.min(...earlyCandidates.map(p => p.tickets || 0));
+            person = earlyCandidates.find(p => (p.tickets || 0) === minT);
 
             if (advance) {
                 const kickoffIndex = persons.findIndex(p => p.id === person.id);
@@ -83,8 +84,27 @@ export function getNextPerson(advance = true) {
 
     if (!person) {
         state.rrIndex = state.rrIndex % persons.length;
-        person = persons[state.rrIndex];
+        const basePerson = persons[state.rrIndex];
+        const teamTurn = basePerson.turn;
+
+        // Balance workload within the targeted team
+        const teamPersons = persons.filter(p => p.turn === teamTurn);
+        const minTickets = Math.min(...teamPersons.map(p => typeof p.tickets === 'number' ? p.tickets : 0));
+        const candidates = teamPersons.filter(p => (typeof p.tickets === 'number' ? p.tickets : 0) === minTickets);
+
+        // If there's a tie, maintain natural RR sequence by finding the closest one forward
+        candidates.sort((a, b) => {
+            const idxA = persons.findIndex(p => p.id === a.id);
+            const idxB = persons.findIndex(p => p.id === b.id);
+            const distA = (idxA - state.rrIndex + persons.length) % persons.length;
+            const distB = (idxB - state.rrIndex + persons.length) % persons.length;
+            return distA - distB;
+        });
+
+        person = candidates[0];
+
         if (advance) {
+            // Advance sequential pointer to give the next sub-turn to the next expected slot/team
             state.rrIndex = (state.rrIndex + 1) % persons.length;
         }
     }
