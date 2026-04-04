@@ -62,6 +62,14 @@ window.app = {
         updateDisplay();
         saveStateToCloud();
     },
+    updateTicketCi: (index, checked) => {
+        if (!state.tickets[index]) return;
+        state.tickets[index].ci = !!checked;
+        addLog('EDIT_FIELD', 'ci', state.tickets[index].assignedTo);
+        saveState();
+        updateDisplay();
+        saveStateToCloud();
+    },
     updateTicketUcn: (index, value) => {
         if (!state.tickets[index]) return;
         state.tickets[index].ucn = value.trim().toUpperCase();

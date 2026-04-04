@@ -251,6 +251,7 @@ export function updateTicketsTable() {
         return `
             <tr>
                 <td><input type="checkbox" ${ticket.ho === false ? '' : 'checked'} onchange="app.updateTicketHo(${index}, this.checked)"></td>
+                <td><input type="checkbox" ${ticket.ci ? 'checked' : ''} onchange="app.updateTicketCi(${index}, this.checked)"></td>
                 <td>${escapeHtml(ticket.turn)}</td>
                 <td>${escapeHtml(ticket.assignedTo)}</td>
                 <td><strong>${escapeHtml(ticket.number)}</strong></td>
@@ -334,8 +335,24 @@ export async function downloadHandoverEml() {
     const dateLabel = getMadridDateForSubject(LATERS_TURN.end);
     const subject = `HANDOVER: Madrid T1 Night ${dateLabel}`;
     
+    // HO tickets: all tickets marked for handover
     const handoverTickets = state.tickets.filter(t => t.ho !== false);
-    const rowsHtml = handoverTickets.map(t => `
+    
+    // CI tickets: subset of HO tickets marked as critical incident
+    const ciTickets = handoverTickets.filter(t => t.ci);
+    // Standard HO tickets: HO tickets NOT marked as CI
+    const standardTickets = handoverTickets.filter(t => !t.ci);
+
+    // CI section: one line per ticket  "ticket - UCN - Customer - notes"
+    const ciLinesHtml = ciTickets.length > 0
+        ? ciTickets.map(t => {
+            const parts = [t.number, t.ucn, t.customer, t.notes].filter(Boolean);
+            return `<p style="margin:4px 0;">${parts.map(escapeHtml).join(' - ')}</p>`;
+          }).join('')
+        : '<p style="margin:4px 0;">-</p>';
+    
+    // Standard table rows
+    const rowsHtml = standardTickets.map(t => `
         <tr>
             <td style="border:1px solid #ccc;padding:8px;">${escapeHtml(t.number)}</td>
             <td style="border:1px solid #ccc;padding:8px;">${escapeHtml(t.ucn)}</td>
@@ -347,6 +364,11 @@ export async function downloadHandoverEml() {
     const htmlBody = `
         <div style="font-family:Arial;font-size:13px;">
             <h2 style="color:#7030A0;">GSOC Daily Handover - ${dateLabel}</h2>
+
+            <h3 style="color:#C00000;">Critical incidentes, etc</h3>
+            ${ciLinesHtml}
+
+            <h3 style="color:#7030A0;">Standard Handover</h3>
             <table style="border-collapse:collapse;width:100%;border:1px solid #000;">
                 <tr style="background:#7030A0;color:white;"><th>Ticket</th><th>UCN</th><th>Customer</th><th>Notes</th></tr>
                 ${rowsHtml}
