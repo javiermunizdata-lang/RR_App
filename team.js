@@ -113,13 +113,13 @@ export function toggleBreak(memberId) {
     if (!state.breaks[memberId]) {
         state.breaks[memberId] = true;
     } else {
-        delete state.breaks[memberId];
+        state.breaks[memberId] = false;
     }
     saveState();
 }
 
 export function isOnBreak(memberId) {
-    return !!state.breaks[memberId];
+    return state.breaks[memberId] === true;
 }
 
 export function getAssignableMembers(turn) {

@@ -35,8 +35,16 @@ window.app = {
     },
     handleDragStart,
     handleDragOver,
-    handleDropOnMember,
-    handleDropOnList,
+    handleDropOnMember: (e, turn, index) => {
+        handleDropOnMember(e, turn, index);
+        updateDisplay();
+        saveStateToCloud();
+    },
+    handleDropOnList: (e, turn) => {
+        handleDropOnList(e, turn);
+        updateDisplay();
+        saveStateToCloud();
+    },
     
     // UI Helpers
     switchAppView,
