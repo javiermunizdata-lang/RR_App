@@ -5,7 +5,7 @@ import { state, saveState, addLog } from './state.js';
 import { getTeamMembers, toggleBreak, handleDragStart, handleDragOver, handleDropOnMember, handleDropOnList } from './team.js';
 import { getMadridTimeParts, getMadridDateShort, getZoneOffsetMinutes, formatMinutes, isWithinWindow, escapeHtml, getZoneDateParts, getMadridDateForSubject, buildHandoverEml } from './utils.js';
 import { getNextPerson, getEarlyTotalTickets, getLatersTotalTickets, isLatersInBalance } from './assignment.js';
-import { EARLY_TURN, LATERS_TURN, BALANCE_THRESHOLD, NC_POSITION_INDEX, NOTE_OPTIONS } from './config.js';
+import { EARLY_TURN, LATERS_TURN, BALANCE_THRESHOLD, NC_POSITION_INDEX, NOTE_OPTIONS, NC_EARLY_ACTIVE, NC_LATERS_ACTIVE } from './config.js';
 
 let displayTimeZone = 'Europe/Madrid';
 let activeAppView = 'overview';
@@ -134,8 +134,9 @@ export function updateTeamDisplay() {
 function renderTurnColumn(turn, title) {
     const members = getTeamMembers(turn);
     const hourMadrid = Number.parseInt(getMadridTimeParts().hours, 10);
-    const window = turn === 'early' ? { start: 20, end: 23 } : { start: 16, end: 20 };
+    const window = turn === 'early' ? NC_EARLY_ACTIVE : NC_LATERS_ACTIVE;
     const ncIsActive = hourMadrid >= window.start && hourMadrid < window.end;
+    const ncLocked = !ncIsActive;
 
     let html = `<div class="team-column" ondrop="app.handleDropOnList(event, '${turn}')" ondragover="app.handleDragOver(event)">`;
     html += `<h3>${title}</h3>`;
@@ -144,10 +145,10 @@ function renderTurnColumn(turn, title) {
     members.forEach((member, index) => {
         const onBreak = state.breaks[member.id];
         const isNCPosition = index === NC_POSITION_INDEX;
-        const ncInfo = isNCPosition ? `<span class="nc-badge ${ncIsActive ? 'active' : 'placeholder'}">NC Point</span>` : '';
+        const ncInfo = isNCPosition ? `<span class="nc-badge" style="${ncLocked ? 'background:#ecf0f1;color:#7f8c8d;border:1px solid #bdc3c7;' : ''}">${ncLocked ? '🔒 ' : ''}NC Point</span>` : '';
 
         html += `
-            <div class="team-member-item ${onBreak ? 'on-break' : ''} ${isNCPosition ? 'nc-slot' : ''}"
+            <div class="team-member-item ${onBreak ? 'on-break' : ''} ${isNCPosition ? 'nc-slot' : ''} ${isNCPosition && ncLocked ? 'nc-locked' : ''}"
                  draggable="true"
                  ondragstart="app.handleDragStart(event, '${member.id}', '${turn}', ${index})"
                  ondrop="app.handleDropOnMember(event, '${turn}', ${index})"
