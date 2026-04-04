@@ -1,12 +1,7 @@
 // state.js
 // State management for Madrid RR App
 
-import { 
-    LOCAL_STATE_KEY, 
-    EARLY_TURN, 
-    LATERS_TURN,
-    ALL_MEMBERS 
-} from './config.js';
+import { LOCAL_STATE_KEY, ALL_MEMBERS } from './config.js';
 
 // Global state
 export let currentWindowUser = 'User'; // Configurable user identify
@@ -16,8 +11,8 @@ export let state = {
     rrIndex: 0,
     currentUser: null, // Preserving from original
     teamOrder: {
-        early: EARLY_TURN.members.map(m => m.id),
-        laters: LATERS_TURN.members.map(m => m.id)
+        early: ALL_MEMBERS.filter(m => m.defaultTurn === 'early').map(m => m.id),
+        laters: ALL_MEMBERS.filter(m => m.defaultTurn === 'laters').map(m => m.id)
     },
     teamConfig: {},
     breaks: {},
@@ -68,8 +63,8 @@ export function resetState() {
     state.timestamp = null;
     
     state.teamOrder = {
-        early: EARLY_TURN.members.map(m => m.id),
-        laters: LATERS_TURN.members.map(m => m.id)
+        early: ALL_MEMBERS.filter(m => m.defaultTurn === 'early').map(m => m.id),
+        laters: ALL_MEMBERS.filter(m => m.defaultTurn === 'laters').map(m => m.id)
     };
     
     // Reset config
@@ -77,7 +72,7 @@ export function resetState() {
     ALL_MEMBERS.forEach(member => {
         state.teamConfig[member.id] = {
             name: member.name,
-            turn: EARLY_TURN.members.find(m => m.id === member.id) ? 'early' : 'laters',
+            turn: member.defaultTurn,
             tickets: 0
         };
     });
@@ -109,7 +104,7 @@ export function initializeTeamConfig() {
         if (!state.teamConfig[member.id]) {
             state.teamConfig[member.id] = {
                 name: member.name,
-                turn: EARLY_TURN.members.find(m => m.id === member.id) ? 'early' : 'laters',
+                turn: member.defaultTurn,
                 tickets: 0
             };
         }

@@ -3,8 +3,6 @@
 
 import { state, saveState } from './state.js';
 import { 
-    EARLY_TURN, 
-    LATERS_TURN, 
     MEMBERS_BY_ID, 
     NC_POSITION_INDEX, 
     NC_EARLY_ACTIVE, 

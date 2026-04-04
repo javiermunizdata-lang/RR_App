@@ -3,7 +3,7 @@
 
 import { state, saveState, addLog } from './state.js';
 import { getTeamMembers, toggleBreak, handleDragStart, handleDragOver, handleDropOnMember, handleDropOnList } from './team.js';
-import { getMadridTimeParts, getMadridDateShort, getZoneOffsetMinutes, formatMinutes, isWithinWindow, escapeHtml, getZoneDateParts, formatTicketTimeForDisplay, getMadridDateForSubject, buildHandoverEml } from './utils.js';
+import { getMadridTimeParts, getMadridDateShort, getZoneOffsetMinutes, formatMinutes, isWithinWindow, escapeHtml, getZoneDateParts, getMadridDateForSubject, buildHandoverEml } from './utils.js';
 import { getNextPerson, getEarlyTotalTickets, getLatersTotalTickets, isLatersInBalance } from './assignment.js';
 import { EARLY_TURN, LATERS_TURN, BALANCE_THRESHOLD, NC_POSITION_INDEX, NOTE_OPTIONS } from './config.js';
 
