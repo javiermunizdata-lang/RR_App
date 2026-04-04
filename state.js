@@ -100,6 +100,7 @@ export function addLog(action, details = '', target = '') {
 
 // Initialize config if it doesn't exist
 export function initializeTeamConfig() {
+    // 1. Initialize per-member config if missing
     ALL_MEMBERS.forEach(member => {
         if (!state.teamConfig[member.id]) {
             state.teamConfig[member.id] = {
@@ -109,6 +110,22 @@ export function initializeTeamConfig() {
             };
         }
     });
+
+    // 2. Validate teamOrder: If it's empty or contains invalid IDs (e.g. from an old version), reset it
+    const validIds = new Set(ALL_MEMBERS.map(m => m.id));
+    const isOrderValid = (turn) => 
+        state.teamOrder[turn] && 
+        state.teamOrder[turn].length > 0 && 
+        state.teamOrder[turn].every(id => validIds.has(id));
+
+    if (!isOrderValid('early') || !isOrderValid('laters')) {
+        console.warn('Invalid or old teamOrder detected. Resetting to defaults...');
+        state.teamOrder = {
+            early: ALL_MEMBERS.filter(m => m.defaultTurn === 'early').map(m => m.id),
+            laters: ALL_MEMBERS.filter(m => m.defaultTurn === 'laters').map(m => m.id)
+        };
+        saveState();
+    }
 }
 
 export function getSerializableState() {
