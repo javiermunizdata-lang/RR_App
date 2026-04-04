@@ -131,12 +131,24 @@ export function updateTeamDisplay() {
     container.innerHTML = html;
 }
 
+function isTimeInWindow(hour, start, end) {
+    if (start <= end) {
+        return hour >= start && hour < end;
+    } else {
+        return hour >= start || hour < end;
+    }
+}
+
 function renderTurnColumn(turn, title) {
     const members = getTeamMembers(turn);
     const hourMadrid = Number.parseInt(getMadridTimeParts().hours, 10);
+    const shiftDef = turn === 'early' ? EARLY_TURN : LATERS_TURN;
+    const isShiftActive = isTimeInWindow(hourMadrid, shiftDef.start, shiftDef.end);
+
     const window = turn === 'early' ? NC_EARLY_ACTIVE : NC_LATERS_ACTIVE;
-    const ncIsActive = hourMadrid >= window.start && hourMadrid < window.end;
-    const ncLocked = !ncIsActive;
+    const ncIsActive = isTimeInWindow(hourMadrid, window.start, window.end);
+    
+    const ncLocked = isShiftActive && !ncIsActive;
 
     let html = `<div class="team-column" ondrop="app.handleDropOnList(event, '${turn}')" ondragover="app.handleDragOver(event)">`;
     html += `<h3>${title}</h3>`;
