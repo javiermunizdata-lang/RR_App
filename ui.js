@@ -145,7 +145,7 @@ function renderTurnColumn(turn, title) {
     members.forEach((member, index) => {
         const onBreak = state.breaks[member.id];
         const isNCPosition = index === NC_POSITION_INDEX;
-        const ncInfo = isNCPosition ? `<span class="nc-badge" style="${ncLocked ? 'background:#ecf0f1;color:#7f8c8d;border:1px solid #bdc3c7;' : ''}">${ncLocked ? '🔒 ' : ''}NC Point</span>` : '';
+        const ncInfo = (isNCPosition && ncLocked) ? `<span class="nc-badge" style="background:#ecf0f1;color:#7f8c8d;border:1px solid #bdc3c7;">🔒 NC Point</span>` : '';
 
         html += `
             <div class="team-member-item ${onBreak ? 'on-break' : ''} ${isNCPosition ? 'nc-slot' : ''} ${isNCPosition && ncLocked ? 'nc-locked' : ''}"
