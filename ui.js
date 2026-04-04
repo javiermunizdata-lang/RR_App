@@ -246,7 +246,7 @@ export function updateTicketsTable() {
 
     tbody.innerHTML = filtered.map(({ ticket, index }) => {
         const noteValue = ticket.notes || '';
-        const isCustom = noteValue && !NOTE_OPTIONS.includes(noteValue);
+        const isCustom = noteValue === '__custom__' || (noteValue && !NOTE_OPTIONS.includes(noteValue));
         
         return `
             <tr>
@@ -262,7 +262,7 @@ export function updateTicketsTable() {
                         ${NOTE_OPTIONS.map(opt => `<option value="${opt}" ${noteValue === opt ? 'selected' : ''}>${opt}</option>`).join('')}
                         <option value="__custom__" ${isCustom ? 'selected' : ''}>Custom...</option>
                     </select>
-                    ${isCustom ? `<input type="text" class="table-input" value="${escapeHtml(noteValue)}" onchange="app.updateTicketCustomNote(${index}, this.value)">` : ''}
+                    ${isCustom ? `<input type="text" class="table-input" placeholder="Type custom note..." value="${noteValue === '__custom__' ? '' : escapeHtml(noteValue)}" onchange="app.updateTicketCustomNote(${index}, this.value)">` : ''}
                 </td>
                 <td>${escapeHtml(formatTicketTime(ticket))}</td>
             </tr>

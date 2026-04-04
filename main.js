@@ -80,11 +80,6 @@ window.app = {
     },
     updateTicketNote: (index, value) => {
         if (!state.tickets[index]) return;
-        if (value === '__custom__') {
-            state.tickets[index].notes = '';
-            updateDisplay();
-            return;
-        }
         state.tickets[index].notes = value;
         addLog('EDIT_FIELD', 'notes', state.tickets[index].assignedTo);
         saveState();
