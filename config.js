@@ -34,6 +34,7 @@ export const NOTE_OPTIONS = [
     'Chase A-end',
     'Chase B-end',
     'Chase Dispatch',
+    'Chase Provisioning',
     'Monitoring'
 ];
 

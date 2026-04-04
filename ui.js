@@ -246,7 +246,6 @@ export function updateTicketsTable() {
 
     tbody.innerHTML = filtered.map(({ ticket, index }) => {
         const noteValue = ticket.notes || '';
-        const isCustom = noteValue === '__custom__' || (noteValue && !NOTE_OPTIONS.includes(noteValue));
         
         return `
             <tr>
@@ -256,13 +255,11 @@ export function updateTicketsTable() {
                 <td><strong>${escapeHtml(ticket.number)}</strong></td>
                 <td><input type="text" class="table-input" value="${escapeHtml(ticket.ucn)}" onchange="app.updateTicketUcn(${index}, this.value)"></td>
                 <td><input type="text" class="table-input" value="${escapeHtml(ticket.customer)}" onchange="app.updateTicketCustomer(${index}, this.value)"></td>
-                <td class="notes-cell">
-                    <select class="table-select" onchange="app.updateTicketNote(${index}, this.value)">
-                        <option value="">Select note...</option>
-                        ${NOTE_OPTIONS.map(opt => `<option value="${opt}" ${noteValue === opt ? 'selected' : ''}>${opt}</option>`).join('')}
-                        <option value="__custom__" ${isCustom ? 'selected' : ''}>Custom...</option>
-                    </select>
-                    ${isCustom ? `<input type="text" class="table-input" placeholder="Type custom note..." value="${noteValue === '__custom__' ? '' : escapeHtml(noteValue)}" onchange="app.updateTicketCustomNote(${index}, this.value)">` : ''}
+                <td class="notes-cell" style="min-width: 150px;">
+                    <input type="text" class="table-input" list="notes-list-${index}" value="${escapeHtml(noteValue)}" placeholder="Select or type note..." onchange="app.updateTicketNote(${index}, this.value)">
+                    <datalist id="notes-list-${index}">
+                        ${NOTE_OPTIONS.map(opt => `<option value="${opt}">`).join('')}
+                    </datalist>
                 </td>
                 <td>${escapeHtml(formatTicketTime(ticket))}</td>
             </tr>
