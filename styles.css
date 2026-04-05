@@ -170,30 +170,42 @@
             background: #8ea0b4;
         }
 
-        /* View tabs - Container for tab buttons */
+        /* View tabs - Modern Segmented Control Container */
         .view-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
+            display: inline-flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        /* View tab button - Base styles for tab buttons */
+        /* View tab button - Clean and compact */
         .view-tab-btn {
-            padding: 8px 14px;
-            border: 1px solid #b9d8f5;
-            background: #eef6ff;
-            color: #2c3e50;
-            border-radius: 999px;
+            padding: 6px 16px;
+            border: none;
+            background: transparent;
+            color: #5d6d7e;
+            border-radius: 8px;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Active view tab button - Blue background for active tab */
+        /* Hover effect for tabs */
+        .view-tab-btn:hover:not(.active) {
+            background: rgba(0, 0, 0, 0.03);
+            color: #2c3e50;
+        }
+
+        /* Active view tab button - "Elevated" look */
         .view-tab-btn.active {
-            background: #3498db;
-            border-color: #3498db;
-            color: white;
+            background: white;
+            color: #3498db;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+            transform: scale(1.02);
         }
 
         /* Hidden view panel - Hides inactive panels */

@@ -36,7 +36,7 @@
 
         <div class="view-tabs">
             <button class="view-tab-btn active" id="view-btn-overview" onclick="app.switchAppView('overview')">Overview</button>
-            <button class="view-tab-btn" id="view-btn-table" onclick="app.switchAppView('table')">Tickets Table</button>
+            <button class="view-tab-btn" id="view-btn-table" onclick="app.switchAppView('table')">Historial</button>
             <button class="view-tab-btn" id="view-btn-logs" onclick="app.switchAppView('logs')">Logs</button>
         </div>
 
@@ -88,7 +88,7 @@
 
         <div class="view-panel hidden" id="table-view">
             <div class="card">
-                <h2>Tickets Table</h2>
+                <h2>Historial</h2>
                 <div class="table-filters">
                     <select class="table-select" id="filter-shift" onchange="app.setTableFilters()">
                         <option value="">All shifts</option>
