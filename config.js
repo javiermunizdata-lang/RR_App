@@ -14,7 +14,7 @@ export const EARLY_TURN = {
 
 export const LATERS_TURN = {
     id: 'laters',
-    name: 'Laters',
+    name: 'Late',
     start: 16,
     end: 1
 };

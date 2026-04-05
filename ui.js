@@ -131,7 +131,7 @@ export function updateTeamDisplay() {
 
     let html = '';
     html += renderTurnColumn('early', 'Early Shift');
-    html += renderTurnColumn('laters', 'Laters Shift');
+    html += renderTurnColumn('laters', 'Late Shift');
     container.innerHTML = html;
 }
 
@@ -143,7 +143,7 @@ function isTimeInWindow(hour, start, end) {
     }
 }
 
-function renderTurnColumn(turn, title) {
+function renderTurnColumn(turn, titlePrefix) {
     const members = getTeamMembers(turn);
     const hourMadrid = Number.parseInt(getMadridTimeParts().hours, 10);
     const shiftDef = turn === 'early' ? EARLY_TURN : LATERS_TURN;
@@ -154,14 +154,19 @@ function renderTurnColumn(turn, title) {
     
     const ncLocked = isShiftActive && !ncIsActive;
 
+    const offset = getZoneOffsetMinutes('Europe/Madrid', displayTimeZone);
+    const startStr = formatMinutes(((shiftDef.start * 60) + offset + 1440) % 1440);
+    const endStr = formatMinutes(((shiftDef.end * 60) + offset + 1440) % 1440);
+    const fullHeader = `${titlePrefix} (${startStr} - ${endStr})`;
+
     let html = `<div class="team-column" ondrop="app.handleDropOnList(event, '${turn}')" ondragover="app.handleDragOver(event)">`;
-    html += `<h3>${title}</h3>`;
+    html += `<h3>${fullHeader}</h3>`;
     html += '<div class="team-list">';
 
     members.forEach((member, index) => {
         const onBreak = state.breaks[member.id];
         const isNCPosition = index === NC_POSITION_INDEX;
-        const ncInfo = (isNCPosition && ncLocked) ? `<span class="nc-badge" style="background:#ecf0f1;color:#7f8c8d;border:1px solid #bdc3c7;">🔒 NC Point</span>` : '';
+        const ncInfo = (isNCPosition && ncLocked) ? `<span class="nc-badge">🔒 NC Point</span>` : '';
 
         html += `
             <div class="team-member-item ${onBreak ? 'on-break' : ''} ${isNCPosition ? 'nc-slot' : ''} ${isNCPosition && ncLocked ? 'nc-locked' : ''}"
