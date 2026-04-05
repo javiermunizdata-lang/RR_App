@@ -32,5 +32,5 @@ export const Security = {
     UCN: (val) => sanitizeAlphanumeric(val, 15, false).toUpperCase(),
     Customer: (val) => sanitizeAlphanumeric(val, 30, true),
     Note: (val) => sanitizeAlphanumeric(val, 30, true),
-    Ticket: (val) => sanitizeAlphanumeric(val, 20, false).toUpperCase()
+    Ticket: (val) => sanitizeAlphanumeric(val, 11, false).toUpperCase()
 };
