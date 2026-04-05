@@ -70,18 +70,18 @@ export const MSAL_CONFIG = {
 // Once the app runs, state.teamOrder controls actual placement (drag & drop).
 
 export const ALL_MEMBERS = [
-    { id: 'fernando', name: 'Fernando', defaultTurn: 'early' },
-    { id: 'octavio', name: 'Octavio', defaultTurn: 'laters' },
-    { id: 'ana-maria', name: 'Ana María', defaultTurn: 'early' },
-    { id: 'enrique', name: 'Enrique', defaultTurn: 'laters' },
-    { id: 'gabrielius', name: 'Gabrielius', defaultTurn: 'laters' },
-    { id: 'luisa', name: 'Luisa', defaultTurn: 'early' },
-    { id: 'mad', name: 'Mad', defaultTurn: 'laters' },
-    { id: 'javier', name: 'Javier', defaultTurn: 'early' },
-    { id: 'francisco', name: 'Francisco', defaultTurn: 'laters' },
-    { id: 'alvaro', name: 'Alvaro', defaultTurn: 'early' },
-    { id: 'alberto', name: 'Alberto', defaultTurn: 'laters' },
-    { id: 'julian', name: 'Julian', defaultTurn: 'early' },
+    { id: 'fernando', name: 'Fernando', email: 'fernando@company.com', defaultTurn: 'early' },
+    { id: 'octavio', name: 'Octavio', email: 'octavio@company.com', defaultTurn: 'laters' },
+    { id: 'ana-maria', name: 'Ana María', email: 'ana-maria@company.com', defaultTurn: 'early' },
+    { id: 'enrique', name: 'Enrique', email: 'enrique@company.com', defaultTurn: 'laters' },
+    { id: 'gabrielius', name: 'Gabrielius', email: 'gabrielius@company.com', defaultTurn: 'laters' },
+    { id: 'luisa', name: 'Luisa', email: 'luisa@company.com', defaultTurn: 'early' },
+    { id: 'mad', name: 'Mad', email: 'mad@company.com', defaultTurn: 'laters' },
+    { id: 'javier', name: 'Javier', email: 'javier@company.com', defaultTurn: 'early' },
+    { id: 'francisco', name: 'Francisco', email: 'francisco@company.com', defaultTurn: 'laters' },
+    { id: 'alvaro', name: 'Alvaro', email: 'alvaro@company.com', defaultTurn: 'early' },
+    { id: 'alberto', name: 'Alberto', email: 'alberto@company.com', defaultTurn: 'laters' },
+    { id: 'julian', name: 'Julian', email: 'julian@company.com', defaultTurn: 'early' },
 ];
 
 // Lookup map: member ID → member definition

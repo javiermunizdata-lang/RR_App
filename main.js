@@ -7,6 +7,7 @@ import { updateDisplay, showStatus, switchAppView, setTableFilters, clearTableFi
 import { assignTicket } from './assignment.js';
 import { toggleBreak, handleDragStart, handleDragOver, handleDropOnMember, handleDropOnList, moveMember } from './team.js';
 import { Security } from './security.js';
+import { openTeamsNotification } from './notifications.js';
 
 // Global access for HTML event handlers
 window.app = {
@@ -22,6 +23,7 @@ window.app = {
             showStatus(res.message, 'success');
             updateDisplay();
             saveStateToCloud();
+            openTeamsNotification(res.ticket.assignedId, res.ticket.number);
         } else {
             showStatus(res.message, 'warning');
         }
