@@ -18,8 +18,8 @@ export function openTeamsNotification(memberId, ticketNumber) {
         return;
     }
 
-    // Message in English as requested
-    const message = `Hi ${member.name}, I have assigned the ticket ${ticketNumber} to you. Please check it. Thanks!`;
+    // Message in English as requested - Bold ticket number
+    const message = `Hi ${member.name}, I have assigned the ticket **${ticketNumber}** to you. Please check it. Thanks!`;
     
     // Microsoft Teams Deep Link format - using msteams:/ protocol to bypass browser prompts
     const encodedMsg = encodeURIComponent(message);
