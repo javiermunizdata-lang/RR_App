@@ -59,7 +59,7 @@
 
                 <div class="form-group">
                     <label for="ticket-number">Ticket Number:</label>
-                    <input type="text" id="ticket-number" placeholder="INC00000000" autocomplete="off" disabled>
+                    <input type="text" id="ticket-number" placeholder="INC00000000" autocomplete="off" oninput="app.onInputTicket(this.value, this)" disabled>
                 </div>
 
                 <div class="button-group">

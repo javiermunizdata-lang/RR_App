@@ -13,7 +13,9 @@ window.app = {
     // Ticket Assignment
     assignTicket: () => {
         const input = document.getElementById('ticket-number');
-        const res = assignTicket(input.value.trim());
+        const sanitized = Security.Ticket(input.value);
+        input.value = sanitized;
+        const res = assignTicket(sanitized);
         if (res.success) {
             input.value = '';
             input.focus();
@@ -53,6 +55,10 @@ window.app = {
     clearTableFilters,
     toggleDisplayTimeZone: (useNy) => toggleDisplayTimeZone(useNy),
     createHandoverEmail: downloadHandoverEml,
+    onInputTicket: (val, el) => {
+        const sano = Security.Ticket(val);
+        if (el && el.value !== sano) el.value = sano;
+    },
     
     // Ticket Editing
     updateTicketHo: (index, checked) => {
