@@ -132,9 +132,9 @@
         .time-info {
             display: flex;
             align-items: center;
-            background: #f1f4f8;
-            padding: 4px 16px;
-            border-radius: 20px;
+            background: transparent;
+            padding: 2px 8px;
+            border-radius: 8px;
             gap: 0;
             font-size: 13px;
             color: #4a6078;
@@ -152,7 +152,7 @@
 
         /* Divider for unified status bar */
         .time-badge:not(:last-child) {
-            border-right: 1px solid #d1d9e2;
+            border-right: 1px solid #e1e8f0;
         }
 
         /* Timezone badge - Container for timezone toggle */
