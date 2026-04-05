@@ -23,7 +23,10 @@ window.app = {
             showStatus(res.message, 'success');
             updateDisplay();
             saveStateToCloud();
-            openTeamsNotification(res.ticket.assignedId, res.ticket.number);
+            
+            // Get all tickets for this member to build a cumulative history message
+            const memberTickets = state.tickets.filter(t => t.assignedId === res.ticket.assignedId);
+            openTeamsNotification(res.ticket.assignedId, res.ticket.number, memberTickets);
         } else {
             showStatus(res.message, 'warning');
         }

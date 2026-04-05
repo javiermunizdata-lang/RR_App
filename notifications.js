@@ -1,16 +1,12 @@
-/**
- * notifications.js
- * Handles Microsoft Teams notifications via deep links
- */
-
 import { MEMBERS_BY_ID } from './config.js';
 
 /**
- * Opens a Microsoft Teams chat with a pre-filled message for a member
+ * Opens a Microsoft Teams chat with a cumulative message for a member
  * @param {string} memberId - ID of the member assigned to the ticket
- * @param {string} ticketNumber - The ticket number (INC...)
+ * @param {string} ticketNumber - The current ticket number (INC...)
+ * @param {Array} memberTickets - List of all tickets assigned to this member today
  */
-export function openTeamsNotification(memberId, ticketNumber) {
+export function openTeamsNotification(memberId, ticketNumber, memberTickets = []) {
     const member = MEMBERS_BY_ID[memberId];
     
     if (!member || !member.email) {
@@ -18,18 +14,30 @@ export function openTeamsNotification(memberId, ticketNumber) {
         return;
     }
 
-    // Message in English - Uppercase for visibility (Deep links don't support bold)
-    const message = `NEW TICKET ASSIGNMENT\n--------------------\nHi ${member.name},\nI have assigned the ticket ${ticketNumber.toUpperCase()} to you.\nPlease check it. Thanks!`;
-    
-    // Microsoft Teams Deep Link format - Final attempt to skip or minimize splash screen
-    const encodedMsg = encodeURIComponent(message);
-    const teamsUrl = `https://teams.microsoft.com/l/chat/0/0?users=${member.email}&message=${encodedMsg}&web=true&launcher=false`;
+    // Header with current ticket
+    const now = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    let message = `NEW TICKET ASSIGNMENT: ${ticketNumber.toUpperCase()} (${now})\n`;
+    message += `--------------------------------------------------\n`;
+    message += `Hi ${member.name}, here is your assignment status:\n\n`;
 
-    // Opening a focused 600x700 popup instead of switching to the desktop app
-    // This allows the user to see the chat, send the message, and close the window without losing focus on the RR App
-    window.open(
-        teamsUrl, 
-        'TeamsChatPopup', 
-        'width=600,height=700,status=no,menubar=no,toolbar=no,location=no,resizable=yes'
-    );
+    // History list (limit to last 10 for message length safety)
+    const history = memberTickets.slice(0, 10);
+    history.forEach((t, i) => {
+        const isNew = t.number.toUpperCase() === ticketNumber.toUpperCase();
+        message += `${i + 1}. ${t.number.toUpperCase()} - ${t.time}${isNew ? ' (NEW)' : ''}\n`;
+    });
+
+    if (memberTickets.length > 10) {
+        message += `... and ${memberTickets.length - 10} more in your history.\n`;
+    }
+
+    message += `--------------------------------------------------\n`;
+    message += `Please check them. Thanks!`;
+
+    // Microsoft Teams Deep Link format - Switching back to msteams:/ for direct desktop triggering
+    const encodedMsg = encodeURIComponent(message);
+    const teamsUrl = `msteams:/l/chat/0/0?users=${member.email}&message=${encodedMsg}&token=${Date.now()}`;
+
+    // Trigger the desktop app directly
+    window.location.href = teamsUrl;
 }
