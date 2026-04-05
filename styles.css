@@ -441,11 +441,12 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Team Grid - Grid layout for team columns */
+        /* Team Grid - Responsive layout for team columns */
         .team-columns {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 15px;
+            width: 100%;
         }
 
         /* Team columns children - Prevents shrinking */
