@@ -25,7 +25,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             justify-content: flex-start;
             align-items: flex-start;
@@ -205,7 +205,7 @@
             background: #8ea0b4;
         }
 
-        /* View tabs - Modern Segmented Control Container */
+        /* View tabs - Segmented Control with custom white border */
         .view-tabs {
             display: inline-flex;
             gap: 4px;
@@ -213,7 +213,8 @@
             background: rgba(0, 0, 0, 0.05);
             padding: 4px;
             border-radius: 12px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         /* View tab button - Clean and compact */
