@@ -578,16 +578,23 @@
         }
 
         /* NC badge - Orange badge for NC status */
+        /* NC badge - Now absolutely positioned to not move anything */
         .nc-badge {
-            display: inline-block;
-            padding: 1px 5px;
-            border-radius: 999px;
+            position: absolute;
             background: #ffe3bf;
             color: #8a4b00;
-            font-size: 9px;
-            font-weight: 700;
-            vertical-align: middle;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: 800;
+            top: 4px;
+            right: 50px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            pointer-events: none;
+            z-index: 10;
+            border: 1px solid rgba(138, 75, 0, 0.1);
             white-space: nowrap;
+            text-transform: uppercase;
         }
 
         /* Placeholder NC badge - Hidden placeholder */

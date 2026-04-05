@@ -169,11 +169,11 @@ function renderTurnColumn(turn, title) {
                  ondragstart="app.handleDragStart(event, '${member.id}', '${turn}', ${index})"
                  ondrop="app.handleDropOnMember(event, '${turn}', ${index})"
                  ondragover="app.handleDragOver(event)">
+                ${ncInfo}
                 <span class="member-drag-handle">::</span>
                 <div class="member-info">
                     <div class="member-name-row">
                         <div class="member-name">${member.name}</div>
-                        ${ncInfo}
                     </div>
                     <div class="member-tickets">${member.tickets || 0} tickets</div>
                 </div>
