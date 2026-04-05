@@ -265,12 +265,12 @@ export function updateTicketsTable() {
                 <td>${escapeHtml(ticket.turn)}</td>
                 <td>${escapeHtml(ticket.assignedTo)}</td>
                 <td><strong>${escapeHtml(ticket.number)}</strong></td>
-                <td><input type="text" class="table-input" value="${escapeHtml(ticket.ucn)}" onchange="app.updateTicketUcn(${index}, this.value)"></td>
-                <td><input type="text" class="table-input" value="${escapeHtml(ticket.customer)}" onchange="app.updateTicketCustomer(${index}, this.value)"></td>
+                <td><input type="text" class="table-input" value="${escapeHtml(ticket.ucn)}" oninput="app.updateTicketUcn(${index}, this.value, this)"></td>
+                <td><input type="text" class="table-input" value="${escapeHtml(ticket.customer)}" oninput="app.updateTicketCustomer(${index}, this.value, this)"></td>
                 <td class="notes-cell" style="min-width: 150px;">
                     ${isCustom ? `
                         <div style="display:flex; gap:4px; align-items:center;">
-                            <input type="text" id="custom-note-input-${index}" class="table-input" style="flex:1;" placeholder="Type custom note..." value="${noteValue === '__custom__' ? '' : escapeHtml(noteValue)}" onchange="app.updateTicketCustomNote(${index}, this.value)">
+                            <input type="text" id="custom-note-input-${index}" class="table-input" style="flex:1;" placeholder="Type custom note..." value="${noteValue === '__custom__' ? '' : escapeHtml(noteValue)}" oninput="app.updateTicketCustomNote(${index}, this.value, this)">
                             <button onclick="app.updateTicketCustomNote(${index}, '')" style="background:none; border:none; cursor:pointer; color:#e74c3c; font-weight:bold; font-size:14px; padding:0 4px;" title="Clear Note">✕</button>
                         </div>
                     ` : `
