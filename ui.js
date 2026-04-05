@@ -31,6 +31,10 @@ export function updateDisplay() {
     if (activeAppView === 'table' && !isEditingTableCell()) {
         updateTicketsTable();
     }
+    
+    if (activeAppView === 'logs') {
+        updateLogsDisplay();
+    }
 }
 
 export function recalculateTicketsInConfig() {
