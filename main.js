@@ -55,6 +55,11 @@ window.app = {
     toggleDisplayTimeZone: (useNy) => toggleDisplayTimeZone(useNy),
     createHandoverEmail: downloadHandoverEml,
     
+    // Auth integration
+    login: () => {
+        import('./auth.js').then(auth => auth.login());
+    },
+    
     // Ticket Editing
     updateTicketHo: (index, checked) => {
         if (!state.tickets[index]) return;
