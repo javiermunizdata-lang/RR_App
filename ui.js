@@ -59,27 +59,28 @@ function isEditingTableCell() {
 }
 
 export function updateTime() {
-    const { hours, minutes } = getMadridTimeParts(); // Base Madrid time
-    document.getElementById('current-time').textContent = `${hours}:${minutes}`;
+    const now = new Date();
+    const parts = getZoneDateParts(now, displayTimeZone);
+    const h = parts.hour.toString().padStart(2, '0');
+    const m = parts.minute.toString().padStart(2, '0');
+    document.getElementById('current-time').textContent = `${h}:${m}`;
 
     const offset = getZoneOffsetMinutes('Europe/Madrid', displayTimeZone);
-    const nowMinutesTotal = (Number.parseInt(hours, 10) * 60 + Number.parseInt(minutes, 10)) + offset;
     
-    // Normalize to 24h
-    const currentTzMinutes = (nowMinutesTotal % 1440 + 1440) % 1440;
-    
-    // Calculate active shift window from Madrid to current TZ
+    // Calculate active shift window in the current TZ
     const getShiftStatus = (turn) => {
-        const start = (turn === 'early' ? EARLY_TURN.start : LATERS_TURN.start) * 60;
-        const end = (turn === 'early' ? EARLY_TURN.end : LATERS_TURN.end) * 60;
-        const startTz = (start + offset % 1440 + 1440) % 1440;
-        const endTz = (end + offset % 1440 + 1440) % 1440;
-        return isWithinWindow(currentTzMinutes, startTz, endTz);
+        const shift = turn === 'early' ? EARLY_TURN : LATERS_TURN;
+        const nowMinutesTotal = (parts.hour * 60 + parts.minute);
+        
+        const startTz = ((shift.start * 60) + offset + 1440) % 1440;
+        const endTz = ((shift.end * 60) + offset + 1440) % 1440;
+        
+        return isWithinWindow(nowMinutesTotal, startTz, endTz);
     };
 
     const activeShifts = [];
     if (getShiftStatus('early')) activeShifts.push('Early');
-    if (getShiftStatus('laters')) activeShifts.push('Laters');
+    if (getShiftStatus('laters')) activeShifts.push('Late');
     
     document.getElementById('active-turn').textContent = activeShifts.length > 0 ? activeShifts.join(' + ') : 'None';
 }
@@ -321,11 +322,22 @@ export function updateLogsDisplay() {
         return;
     }
 
+    const logFormatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: displayTimeZone,
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    });
+
     tbody.innerHTML = [...state.actionLogs].reverse().map(log => {
-        const date = new Date(log.timestamp);
+        const dateStr = logFormatter.format(new Date(log.timestamp));
         return `
             <tr>
-                <td>${date.toLocaleDateString()} ${date.toLocaleTimeString()}</td>
+                <td>${dateStr}</td>
                 <td>${escapeHtml(log.user)}</td>
                 <td><strong>${escapeHtml(log.action)}</strong></td>
                 <td>${escapeHtml(log.details)}</td>
