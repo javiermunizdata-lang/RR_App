@@ -21,10 +21,15 @@ export function openTeamsNotification(memberId, ticketNumber) {
     // Message in English - Uppercase for visibility (Deep links don't support bold)
     const message = `NEW TICKET ASSIGNMENT\n--------------------\nHi ${member.name},\nI have assigned the ticket ${ticketNumber.toUpperCase()} to you.\nPlease check it. Thanks!`;
     
-    // Microsoft Teams Deep Link format - using msteams:/ protocol and a unique token to force refresh
+    // Microsoft Teams Deep Link format - using https:// to allow browser popup window
     const encodedMsg = encodeURIComponent(message);
-    const teamsUrl = `msteams:/l/chat/0/0?users=${member.email}&message=${encodedMsg}&token=${Date.now()}`;
+    const teamsUrl = `https://teams.microsoft.com/l/chat/0/0?users=${member.email}&message=${encodedMsg}`;
 
-    // Direct location assignment triggers the desktop app protocol without opening a blank tab
-    window.location.href = teamsUrl;
+    // Opening a focused 600x700 popup instead of switching to the desktop app
+    // This allows the user to see the chat, send the message, and close the window without losing focus on the RR App
+    window.open(
+        teamsUrl, 
+        'TeamsChatPopup', 
+        'width=600,height=700,status=no,menubar=no,toolbar=no,location=no,resizable=yes'
+    );
 }
