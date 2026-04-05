@@ -24,7 +24,8 @@ export function openTeamsNotification(memberId, ticketNumber, memberTickets = []
     const history = memberTickets.slice(0, 10);
     history.forEach((t, i) => {
         const isNew = t.number.toUpperCase() === ticketNumber.toUpperCase();
-        message += `${i + 1}. ${t.number.toUpperCase()} - ${t.time}${isNew ? ' (NEW)' : ''}\n`;
+        const displayNum = isNew ? `>> ${t.number.toUpperCase()} <<` : t.number.toUpperCase();
+        message += `${i + 1}. ${displayNum} - ${t.time}\n`;
     });
 
     if (memberTickets.length > 10) {
