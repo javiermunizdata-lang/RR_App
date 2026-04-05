@@ -28,7 +28,7 @@ window.app = {
     toggleBreak: (id) => {
         toggleBreak(id);
         const name = state.teamConfig[id]?.name || id;
-        const status = state.breaks[id] ? 'ON' : 'OFF';
+        const status = state.breaks[id] ? 'OFF' : 'ON';
         addLog('TOGGLE_BREAK', status, name);
         updateDisplay();
         saveStateToCloud();
