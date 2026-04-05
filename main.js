@@ -6,6 +6,7 @@ import { setupCloudPersistence, loadStateFromCloud, setupRealtimeSync, saveState
 import { updateDisplay, showStatus, switchAppView, setTableFilters, clearTableFilters, toggleDisplayTimeZone, downloadHandoverEml } from './ui.js';
 import { assignTicket } from './assignment.js';
 import { toggleBreak, handleDragStart, handleDragOver, handleDropOnMember, handleDropOnList, moveMember } from './team.js';
+import { Security } from './security.js';
 
 // Global access for HTML event handlers
 window.app = {
@@ -72,7 +73,7 @@ window.app = {
     },
     updateTicketUcn: (index, value) => {
         if (!state.tickets[index]) return;
-        state.tickets[index].ucn = value.trim().toUpperCase();
+        state.tickets[index].ucn = Security.UCN(value);
         addLog('EDIT_FIELD', 'ucn', state.tickets[index].assignedTo);
         saveState();
         updateDisplay();
@@ -80,7 +81,7 @@ window.app = {
     },
     updateTicketCustomer: (index, value) => {
         if (!state.tickets[index]) return;
-        state.tickets[index].customer = value.trim();
+        state.tickets[index].customer = Security.Customer(value);
         addLog('EDIT_FIELD', 'customer', state.tickets[index].assignedTo);
         saveState();
         updateDisplay();
@@ -88,7 +89,7 @@ window.app = {
     },
     updateTicketNote: (index, value) => {
         if (!state.tickets[index]) return;
-        state.tickets[index].notes = value;
+        state.tickets[index].notes = value; // Value from select list is safe
         addLog('EDIT_FIELD', 'notes', state.tickets[index].assignedTo);
         saveState();
         
@@ -108,10 +109,7 @@ window.app = {
     },
     updateTicketCustomNote: (index, value) => {
         if (!state.tickets[index]) return;
-        state.tickets[index].notes = value.trim();
-        if (value.trim() === '') {
-            state.tickets[index].notes = '';
-        }
+        state.tickets[index].notes = Security.Note(value);
         addLog('EDIT_FIELD', 'custom_note', state.tickets[index].assignedTo);
         saveState();
         updateDisplay();
