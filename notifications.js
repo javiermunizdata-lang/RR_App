@@ -21,9 +21,9 @@ export function openTeamsNotification(memberId, ticketNumber) {
     // Message in English - Using line breaks and uppercase for visibility (Deep links don't support bold)
     const message = `\n\nNEW TICKET ASSIGMENT\n--------------------\nHi ${member.name},\nI have assigned the ticket ${ticketNumber.toUpperCase()} to you.\nPlease check it. Thanks!`;
     
-    // Microsoft Teams Deep Link format - using msteams:/ protocol to bypass browser prompts
+    // Microsoft Teams Deep Link format - using msteams:/ protocol and a unique token to force refresh
     const encodedMsg = encodeURIComponent(message);
-    const teamsUrl = `msteams:/l/chat/0/0?users=${member.email}&message=${encodedMsg}`;
+    const teamsUrl = `msteams:/l/chat/0/0?users=${member.email}&message=${encodedMsg}&token=${Date.now()}`;
 
     // Direct location assignment triggers the desktop app protocol without opening a blank tab
     window.location.href = teamsUrl;
