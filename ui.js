@@ -200,7 +200,7 @@ function renderTurnColumn(turn, titlePrefix) {
 
 export function switchAppView(view) {
     activeAppView = view;
-    ['overview', 'table', 'logs'].forEach(v => {
+    ['overview', 'table', 'logs', 'about'].forEach(v => {
         const btn = document.getElementById(`view-btn-${v}`);
         const panel = document.getElementById(`${v}-view`);
         if (btn) btn.classList.toggle('active', v === view);
