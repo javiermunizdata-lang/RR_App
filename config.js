@@ -77,7 +77,7 @@ export const ALL_MEMBERS = [
     { id: 'gabrielius', name: 'Gabrielius', email: 'gabrielius@company.com', defaultTurn: 'laters' },
     { id: 'luisa', name: 'Luisa', email: 'luisa@company.com', defaultTurn: 'early' },
     { id: 'mad', name: 'Mad', email: 'mad@company.com', defaultTurn: 'laters' },
-    { id: 'javier', name: 'Javier', email: 'javier@company.com', defaultTurn: 'early' },
+    { id: 'javier', name: 'Javier', email: 'javier.muniz@company.com', defaultTurn: 'early' },
     { id: 'francisco', name: 'Francisco', email: 'francisco@company.com', defaultTurn: 'laters' },
     { id: 'alvaro', name: 'Alvaro', email: 'alvaro@company.com', defaultTurn: 'early' },
     { id: 'alberto', name: 'Alberto', email: 'alberto@company.com', defaultTurn: 'laters' },
