@@ -33,11 +33,15 @@
             gap: 20px;
         }
 
-        /* Header main - Flex container for header content */
+        /* Header main - Flex container for title and status items on the same row */
         .header-main {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 20px;
+            flex-wrap: wrap;
         }
 
         /* Main heading - Styles for the h1 title */
@@ -131,17 +135,22 @@
             flex-wrap: wrap;
             font-size: 14px;
             color: #666;
-            margin-top: 2px;
+            margin-top: 0;
+            align-items: center;
         }
 
-        /* Time badge - Styled badge for time display */
+        /* Time badge - Styled badge for time display, unified flex alignment */
         .time-badge {
             background: linear-gradient(180deg, #f1f6fb 0%, #e9f0f7 100%);
-            padding: 8px 12px;
+            padding: 8px 14px;
             border-radius: 8px;
             font-weight: 600;
             border: 1px solid #d6e2ef;
             color: #2f4f6f;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 38px;
         }
 
         /* Timezone badge - Container for timezone toggle */
@@ -151,13 +160,16 @@
             gap: 8px;
         }
 
-        /* Timezone label - Label for timezone */
+        /* Timezone label - Label for timezone, adjusted for alignment */
         .tz-label {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             color: #4a6078;
             min-width: 44px;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Timezone badge break switch slider - Custom slider for timezone toggle */
