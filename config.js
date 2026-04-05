@@ -70,18 +70,18 @@ export const MSAL_CONFIG = {
 // Once the app runs, state.teamOrder controls actual placement (drag & drop).
 
 export const ALL_MEMBERS = [
-    { id: 'fernando', name: 'Fernando', email: 'fernando@company.com', defaultTurn: 'early' },
-    { id: 'octavio', name: 'Octavio', email: 'octavio@company.com', defaultTurn: 'laters' },
-    { id: 'ana-maria', name: 'Ana María', email: 'ana-maria@company.com', defaultTurn: 'early' },
-    { id: 'enrique', name: 'Enrique', email: 'enrique@company.com', defaultTurn: 'laters' },
-    { id: 'gabrielius', name: 'Gabrielius', email: 'gabrielius@company.com', defaultTurn: 'laters' },
-    { id: 'luisa', name: 'Luisa', email: 'luisa@company.com', defaultTurn: 'early' },
-    { id: 'mad', name: 'Mad', email: 'mad@company.com', defaultTurn: 'laters' },
-    { id: 'javier', name: 'Javier', email: 'javier.muniz@company.com', defaultTurn: 'early' },
-    { id: 'francisco', name: 'Francisco', email: 'francisco@company.com', defaultTurn: 'laters' },
-    { id: 'alvaro', name: 'Alvaro', email: 'alvaro@company.com', defaultTurn: 'early' },
-    { id: 'alberto', name: 'Alberto', email: 'alberto@company.com', defaultTurn: 'laters' },
-    { id: 'julian', name: 'Julian', email: 'julian@company.com', defaultTurn: 'early' },
+    { id: 'fernando', name: 'Fernando', email: 'fernando@ipc.com', defaultTurn: 'early' },
+    { id: 'octavio', name: 'Octavio', email: 'octavio@ipc.com', defaultTurn: 'laters' },
+    { id: 'ana-maria', name: 'Ana María', email: 'ana-maria@ipc.com', defaultTurn: 'early' },
+    { id: 'enrique', name: 'Enrique', email: 'enrique@ipc.com', defaultTurn: 'laters' },
+    { id: 'gabrielius', name: 'Gabrielius', email: 'gabrielius@ipc.com', defaultTurn: 'laters' },
+    { id: 'luisa', name: 'Luisa', email: 'luisa@ipc.com', defaultTurn: 'early' },
+    { id: 'mad', name: 'Mad', email: 'mad@ipc.com', defaultTurn: 'laters' },
+    { id: 'javier', name: 'Javier', email: 'javier.munizdelatorre@ipc.com', defaultTurn: 'early' },
+    { id: 'francisco', name: 'Francisco', email: 'francisco@ipc.com', defaultTurn: 'laters' },
+    { id: 'alvaro', name: 'Alvaro', email: 'alvaro@ipc.com', defaultTurn: 'early' },
+    { id: 'alberto', name: 'Alberto', email: 'alberto@ipc.com', defaultTurn: 'laters' },
+    { id: 'julian', name: 'Julian', email: 'julian@ipc.com', defaultTurn: 'early' },
 ];
 
 // Lookup map: member ID → member definition
