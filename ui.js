@@ -383,17 +383,46 @@ export async function downloadHandoverEml() {
     `).join('') || '<tr><td colspan="4">-</td></tr>';
 
     const htmlBody = `
-        <div style="font-family:Arial;font-size:13px;">
+        <div style="font-family:Arial;font-size:13px; color:#000;">
             <h2 style="color:#7030A0;">GSOC Daily Handover - ${dateLabel}</h2>
 
-            <h3 style="color:#C00000;">Critical Incidents and Major Outages</h3>
-            ${ciLinesHtml}
+            <h3 style="color:#C00000; margin-bottom:8px;">Critical Incidents and Major Outages</h3>
+            <div style="margin-bottom:16px;">
+                ${ciLinesHtml}
+            </div>
 
-            <h3 style="color:#7030A0;">All Other Incidents for Handover</h3>
-            <table style="border-collapse:collapse;width:100%;border:1px solid #000;">
-                <tr style="background:#7030A0;color:white;"><th>Ticket</th><th>UCN</th><th>Customer</th><th>Notes</th></tr>
-                ${rowsHtml}
+            <h3 style="color:#7030A0; margin-bottom:8px;">All Other Incidents for Handover</h3>
+            <table style="border-collapse:collapse;width:100%;border:1px solid #000; margin-bottom:24px;">
+                <thead>
+                    <tr style="background:#7030A0;color:white;">
+                        <th style="border:1px solid #000; padding:8px;">Ticket</th>
+                        <th style="border:1px solid #000; padding:8px;">UCN</th>
+                        <th style="border:1px solid #000; padding:8px;">Customer</th>
+                        <th style="border:1px solid #000; padding:8px;">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
             </table>
+
+            <h3 style="text-decoration:underline; font-weight:bold; margin-bottom:8px;">FINAL CHECK-OFF</h3>
+            <table style="border-collapse:collapse; width:100%; border:1px solid #000; margin-bottom:20px;">
+                <thead>
+                    <tr style="background:#eeeeee;">
+                        <th style="border:1px solid #000; width:30%; padding:8px; height:24px;"></th>
+                        <th style="border:1px solid #000; text-align:left; padding:8px; font-weight:bold;">Warm Handshake Completed?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border:1px solid #000; padding:8px;">Yes</td>
+                        <td style="border:1px solid #000; padding:8px;"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <br><br><br><br><br><br>
         </div>
     `;
 
