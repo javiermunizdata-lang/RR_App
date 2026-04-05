@@ -7,6 +7,7 @@ import { updateDisplay, showStatus, switchAppView, setTableFilters, clearTableFi
 import { assignTicket } from './assignment.js';
 import { toggleBreak, handleDragStart, handleDragOver, handleDropOnMember, handleDropOnList, moveMember } from './team.js';
 import { Security } from './security.js';
+import { setupAuth } from './auth.js';
 
 // Global access for HTML event handlers
 window.app = {
@@ -165,7 +166,9 @@ async function initApp() {
         updateDisplay();
     });
     
-    // Auth logic (Simulated as in original source)
+    // Auth logic - Windows/MSAL integration
+    await setupAuth();
+    
     setTimeout(() => {
         const ticketInput = document.getElementById('ticket-number');
         const assignBtn = document.getElementById('btn-assign');
