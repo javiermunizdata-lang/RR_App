@@ -4,15 +4,7 @@
 import { LOCAL_STATE_KEY, ALL_MEMBERS } from './config.js';
 
 // Global state
-let currentWindowUser = 'User'; // Default user identity
-
-export function setCurrentUser(name) {
-    if (name) currentWindowUser = name;
-}
-
-export function getCurrentUser() {
-    return currentWindowUser;
-}
+export let currentWindowUser = 'User'; // Configurable user identity
 
 export let state = {
     tickets: [],
