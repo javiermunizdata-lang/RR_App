@@ -710,7 +710,15 @@
 
         /* Tickets table wrapper - Scrollable table container */
         .tickets-table-wrapper {
-            max-height: 400px;
+            max-height: calc(100vh - 360px);
+            overflow: auto;
+            border: 1px solid #dbe7f3;
+            border-radius: 8px;
+        }
+
+        /* Logs table wrapper - Scrollable logs container */
+        .logs-table-wrapper {
+            max-height: calc(100vh - 280px);
             overflow: auto;
             border: 1px solid #dbe7f3;
             border-radius: 8px;
