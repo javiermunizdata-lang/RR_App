@@ -21,10 +21,10 @@ export function openTeamsNotification(memberId, ticketNumber) {
     // Message in English as requested
     const message = `Hi ${member.name}, I have assigned the ticket ${ticketNumber} to you. Please check it. Thanks!`;
     
-    // Microsoft Teams Deep Link format
+    // Microsoft Teams Deep Link format - using msteams:/ protocol to bypass browser prompts
     const encodedMsg = encodeURIComponent(message);
-    const teamsUrl = `https://teams.microsoft.com/l/chat/0/0?users=${member.email}&message=${encodedMsg}`;
+    const teamsUrl = `msteams:/l/chat/0/0?users=${member.email}&message=${encodedMsg}`;
 
-    // Open in a new tab/window to trigger the Teams desktop app
-    window.open(teamsUrl, '_blank');
+    // Direct location assignment triggers the desktop app protocol without opening a blank tab
+    window.location.href = teamsUrl;
 }
