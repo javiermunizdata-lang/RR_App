@@ -13,32 +13,33 @@
 <body>
     <div class="container">
         <header>
-            <div class="header-main">
-                <h1>🔄 Madrid RR App</h1>
-                <div class="time-info">
-                    <div class="time-badge">
-                        Active shift: <span id="active-turn">--</span>
-                    </div>
-                    <div class="time-badge">
-                        Current time: <span id="current-time">--:--</span>
-                    </div>
-                    <div class="time-badge timezone-badge">
-                        <span class="tz-label">Madrid</span>
-                        <label class="break-switch" title="Display timezone">
-                            <input type="checkbox" class="break-switch-input" id="timezone-toggle" onchange="app.toggleDisplayTimeZone(this.checked)">
-                            <span class="break-switch-slider"></span>
-                        </label>
-                        <span class="tz-label">NY</span>
+            <div class="header-top">
+                <div class="header-main">
+                    <h1>🔄 Madrid RR App</h1>
+                    <div class="time-info">
+                        <div class="time-badge">
+                            Active shift: <span id="active-turn">--</span>
+                        </div>
+                        <div class="time-badge">
+                            Current time: <span id="current-time">--:--</span>
+                        </div>
+                        <div class="time-badge timezone-badge">
+                            <span class="tz-label">Madrid</span>
+                            <label class="break-switch" title="Display timezone">
+                                <input type="checkbox" class="break-switch-input" id="timezone-toggle" onchange="app.toggleDisplayTimeZone(this.checked)">
+                                <span class="break-switch-slider"></span>
+                            </label>
+                            <span class="tz-label">NY</span>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="view-tabs">
+                <button class="view-tab-btn active" id="view-btn-overview" onclick="app.switchAppView('overview')">Overview</button>
+                <button class="view-tab-btn" id="view-btn-table" onclick="app.switchAppView('table')">History</button>
+                <button class="view-tab-btn" id="view-btn-logs" onclick="app.switchAppView('logs')">Logs</button>
+            </div>
         </header>
-
-        <div class="view-tabs">
-            <button class="view-tab-btn active" id="view-btn-overview" onclick="app.switchAppView('overview')">Overview</button>
-            <button class="view-tab-btn" id="view-btn-table" onclick="app.switchAppView('table')">Historial</button>
-            <button class="view-tab-btn" id="view-btn-logs" onclick="app.switchAppView('logs')">Logs</button>
-        </div>
 
         <div class="view-panel" id="overview-view">
         <div class="main-content">
@@ -88,7 +89,7 @@
 
         <div class="view-panel hidden" id="table-view">
             <div class="card">
-                <h2>Historial</h2>
+                <h2>History</h2>
                 <div class="table-filters">
                     <select class="table-select" id="filter-shift" onchange="app.setTableFilters()">
                         <option value="">All shifts</option>
