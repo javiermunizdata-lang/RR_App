@@ -21,9 +21,9 @@ export function openTeamsNotification(memberId, ticketNumber) {
     // Message in English - Uppercase for visibility (Deep links don't support bold)
     const message = `NEW TICKET ASSIGNMENT\n--------------------\nHi ${member.name},\nI have assigned the ticket ${ticketNumber.toUpperCase()} to you.\nPlease check it. Thanks!`;
     
-    // Microsoft Teams Deep Link format - using https:// with &web=true to skip the 'Use App' splash screen
+    // Microsoft Teams Deep Link format - Final attempt to skip or minimize splash screen
     const encodedMsg = encodeURIComponent(message);
-    const teamsUrl = `https://teams.microsoft.com/l/chat/0/0?users=${member.email}&message=${encodedMsg}&web=true`;
+    const teamsUrl = `https://teams.microsoft.com/l/chat/0/0?users=${member.email}&message=${encodedMsg}&web=true&launcher=false`;
 
     // Opening a focused 600x700 popup instead of switching to the desktop app
     // This allows the user to see the chat, send the message, and close the window without losing focus on the RR App
