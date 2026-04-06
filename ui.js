@@ -316,15 +316,16 @@ export function updateLogsDisplay() {
         hour12: false
     });
 
-    tbody.innerHTML = [...state.actionLogs].reverse().map(log => {
+    tbody.innerHTML = [...state.actionLogs].reverse().map((log, index) => {
         const dateStr = logFormatter.format(new Date(log.timestamp));
+        const rowBg = index % 2 === 0 ? '#fafafa' : '#ffffff';
         return `
-            <tr>
-                <td>${dateStr}</td>
-                <td>${escapeHtml(log.user)}</td>
-                <td><strong>${escapeHtml(log.action)}</strong></td>
-                <td>${escapeHtml(log.details)}</td>
-                <td>${escapeHtml(log.target)}</td>
+            <tr style="background: ${rowBg}; border-bottom: 1px solid #e0e0e0;">
+                <td style="padding: 6px 8px;">${dateStr}</td>
+                <td style="padding: 6px 8px;">${escapeHtml(log.user)}</td>
+                <td style="padding: 6px 8px;"><strong>${escapeHtml(log.action)}</strong></td>
+                <td style="padding: 6px 8px;">${escapeHtml(log.details)}</td>
+                <td style="padding: 6px 8px;">${escapeHtml(log.target)}</td>
             </tr>
         `;
     }).join('');
