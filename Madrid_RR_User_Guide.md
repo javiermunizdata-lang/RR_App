@@ -29,6 +29,7 @@ The **Madrid RR App** is a specialized real-time tool designed to optimize ticke
 2. (Optional) Enter the **UCN** and **Customer**.
 3. Click **"Assign Ticket"**.
 4. The system assigns to the member with fewest tickets and prepares the Teams notification.
+5. The ticket appears in the **History** tab, ready for you to fill in the details.
 
 ### Step 2: Team Management
 - **Break State**: Toggle members ON/OFF to exclude them from the Round Robin temporarily.
@@ -37,9 +38,20 @@ The **Madrid RR App** is a specialized real-time tool designed to optimize ticke
   - **Early Shift**: NC blocked from 14:00 to 20:00 (badge visible during this time)
   - **Late Shift**: NC blocked from 20:00 to 01:00 (badge visible during this time)
 
-### Step 3: Daily Handover
+### Step 3: Fill In Ticket Details (During Your Shift)
+As you work on tickets, fill in the details in the **History** tab for each ticket:
+
+1. Go to the **History** tab.
+2. Use the **"Name"** dropdown to filter and see only your assigned tickets.
+3. For each ticket, fill in:
+   - **UCN**: The Unique Circuit Number or reference
+   - **Customer**: The customer name affected
+   - **Notes**: Select a standard note (Chase Carrier, Chase A-end, etc.) or type a custom note
+
+### Step 4: Daily Handover
 - After the shift, navigate to the **History** tab.
 - Mark tickets for handover (HO checkbox) and critical incidents (CI checkbox).
+- Filter by your name to review your tickets before handover.
 - Click **"Create Handover Email"** to generate a perfectly formatted `.eml` file for **Outlook**.
 - Includes **Critical Incidents** (in bold) and a **table for all other handover tickets**.
 
