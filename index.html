@@ -144,14 +144,14 @@
                 <h2>Action Logs</h2>
                 <button class="btn-secondary" onclick="app.clearAllLogs()" style="margin-bottom: 10px;">Clear Logs</button>
                 <div class="logs-table-wrapper" id="logs-table-wrapper">
-                    <table class="logs-table" style="width:100%; border-collapse: collapse; font-size: 12px;">
+                    <table class="logs-table" style="width:100%; table-layout: fixed; border-collapse: collapse; font-size: 12px;">
                         <thead>
                             <tr style="background: #f0f0f0; border-bottom: 2px solid #333;">
-                                <th style="padding: 8px; text-align: left; width: 140px;">Timestamp</th>
-                                <th style="padding: 8px; text-align: left; width: 80px;">User</th>
-                                <th style="padding: 8px; text-align: left; width: 120px;">Action</th>
-                                <th style="padding: 8px; text-align: left;">Details</th>
-                                <th style="padding: 8px; text-align: left; width: 100px;">Target</th>
+                                <th style="padding: 8px; text-align: left; width: 18%;">Timestamp</th>
+                                <th style="padding: 8px; text-align: left; width: 12%;">User</th>
+                                <th style="padding: 8px; text-align: left; width: 18%;">Action</th>
+                                <th style="padding: 8px; text-align: left; width: 40%;">Details</th>
+                                <th style="padding: 8px; text-align: left; width: 12%;">Target</th>
                             </tr>
                         </thead>
                         <tbody id="logs-table-body">
