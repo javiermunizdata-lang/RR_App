@@ -25,7 +25,6 @@ export const NC_EARLY_ACTIVE = { start: 20, end: 23 };
 export const NC_LATERS_ACTIVE = { start: 16, end: 20 };
 
 // ─── ASSIGNMENT RULES ───────────────────────────────────────────────────────
-export const BALANCE_THRESHOLD = 0.5; // Laters must reach 50% of Early tickets before normal RR resumes
 export const NC_POSITION_INDEX = 0;   // Position 0 in each team list is always the NC slot
 
 // ─── NOTES OPTIONS ──────────────────────────────────────────────────────────

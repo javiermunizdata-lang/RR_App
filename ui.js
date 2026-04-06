@@ -4,8 +4,8 @@
 import { state, saveState, addLog } from './state.js';
 import { getTeamMembers, toggleBreak, handleDragStart, handleDragOver, handleDropOnMember, handleDropOnList } from './team.js';
 import { getMadridTimeParts, getMadridDateShort, getZoneOffsetMinutes, formatMinutes, isWithinWindow, escapeHtml, getZoneDateParts, getMadridDateForSubject, buildHandoverEml } from './utils.js';
-import { getNextPerson, getEarlyTotalTickets, getLatersTotalTickets, isLatersInBalance } from './assignment.js';
-import { EARLY_TURN, LATERS_TURN, BALANCE_THRESHOLD, NC_POSITION_INDEX, NOTE_OPTIONS, NC_EARLY_ACTIVE, NC_LATERS_ACTIVE } from './config.js';
+import { getNextPerson } from './assignment.js';
+import { EARLY_TURN, LATERS_TURN, NC_POSITION_INDEX, NOTE_OPTIONS, NC_EARLY_ACTIVE, NC_LATERS_ACTIVE } from './config.js';
 
 let displayTimeZone = 'Europe/Madrid';
 let activeAppView = 'overview';
@@ -100,30 +100,13 @@ export function updateNextPersonDisplay() {
 
     if (nameEl) nameEl.textContent = next.person.name;
     if (roleEl) roleEl.textContent = `(${next.person.tickets || 0} tickets)`;
-
-    if (next.balancing) {
-        const earlyTotal = getEarlyTotalTickets();
-        const latersTotal = getLatersTotalTickets();
-        const threshold = earlyTotal * BALANCE_THRESHOLD;
-        if (balanceInfo) {
-            balanceInfo.textContent = `Balancing: ${latersTotal}/${Math.round(threshold)}`;
-            balanceInfo.style.display = 'block';
-        }
-    } else {
-        if (balanceInfo) balanceInfo.style.display = 'none';
-    }
+    if (balanceInfo) balanceInfo.style.display = 'none';
 }
 
 export function updateRulesInfo() {
     const rules = document.getElementById('rules-info-text');
     if (!rules) return;
-    
-    const offset = getZoneOffsetMinutes('Europe/Madrid', displayTimeZone);
-    const latersStartMadrid = LATERS_TURN.start * 60;
-    const latersStartTz = (latersStartMadrid + offset % 1440 + 1440) % 1440;
-    const timeStr = formatMinutes(latersStartTz);
-    
-    rules.textContent = `Rule: from ${timeStr}, if Laters is below 50% of Early, tickets go only to Laters. Once threshold is reached, assignment restarts from the lowest-load Early member, then continues with global RR.`;
+    rules.textContent = 'Rule: tickets are always assigned to the available person with the fewest tickets across both shifts.';
 }
 
 export function updateTeamDisplay() {
