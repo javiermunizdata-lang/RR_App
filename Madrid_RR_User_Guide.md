@@ -3,6 +3,10 @@
 ## 📌 Executive Summary
 The **Madrid RR App** is a specialized real-time tool designed to optimize ticket assignment and team balancing for the IPC GSOC Madrid site. It ensures fair workload distribution, multi-timezone awareness, and seamless communication between shifts.
 
+### Who is this for?
+- **Queue Managers (QM)**: The app makes the QM role **easier and more transparent**. No more manual tracking - the system automatically assigns tickets fairly based on workload.
+- **All Team Members**: Everyone can see their **real-time ticket history** and have the option to **toggle their break status** (ON/OFF) to stop receiving tickets temporarily.
+
 ---
 
 ## 🛠️ Key Features
