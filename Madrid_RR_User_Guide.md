@@ -1,7 +1,5 @@
 # Madrid Round Robin (RR) App - User Guide 🚀
 
-![Madrid RR Presentation Cover](file:///C:/Users/Javier/.gemini/antigravity/brain/3fd1c470-4ac8-43d5-bc2b-68666523af97/madrid_rr_presentation_cover_1775404622382.png)
-
 ## 📌 Executive Summary
 The **Madrid RR App** is a specialized real-time tool designed to optimize ticket assignment and team balancing for the IPC GSOC Madrid site. It ensures fair workload distribution, multi-timezone awareness, and seamless communication between shifts.
 
@@ -9,9 +7,9 @@ The **Madrid RR App** is a specialized real-time tool designed to optimize ticke
 
 ## 🛠️ Key Features
 
-### 1. Smart Round Robin & Balancing
-- **Automatic Assignment**: Rotates tickets among available members.
-- **Workload Balancing**: From 16:00 Madrid time, the system automatically balances the **Late Shift** if their load is below 50% of the **Early Shift**, ensuring both teams remain synchronized.
+### 1. Smart Round Robin & Load Balancing
+- **Automatic Assignment**: Tickets are always assigned to the available team member with the **fewest tickets** across both shifts (Early and Late).
+- **Fair Distribution**: No fixed percentage rules - the system dynamically balances based on who has the least workload at the moment of assignment.
 
 ### 2. Multi-Timezone Dashboard
 - **Madrid / NY Toggle**: Switch the entire interface (clock, logs, headers) between Madrid and New York time with one click.
@@ -30,22 +28,25 @@ The **Madrid RR App** is a specialized real-time tool designed to optimize ticke
 1. Enter the **Ticket Number** (INC + 8 digits).
 2. (Optional) Enter the **UCN** and **Customer**.
 3. Click **"Assign Ticket"**.
-4. The system updates the Round Robin index and prepares the Teams notification.
+4. The system assigns to the member with fewest tickets and prepares the Teams notification.
 
 ### Step 2: Team Management
 - **Break State**: Toggle members ON/OFF to exclude them from the Round Robin temporarily.
 - **Drag & Drop**: Re-order team members or move them between Early and Late shifts instantly.
-- **NC Point**: The NC slot (Position 0) is automatically highlighted with a corner tag when active.
+- **NC Point**: The first position (Position 0) in each shift list is the NC slot. The **"NC Point"** badge appears when that position is blocked from receiving tickets:
+  - **Early Shift**: NC blocked from 14:00 to 20:00 (badge visible during this time)
+  - **Late Shift**: NC blocked from 20:00 to 01:00 (badge visible during this time)
 
 ### Step 3: Daily Handover
-- After the shift, navigate to the **History** or **Overview** tab.
+- After the shift, navigate to the **History** tab.
+- Mark tickets for handover (HO checkbox) and critical incidents (CI checkbox).
 - Click **"Create Handover Email"** to generate a perfectly formatted `.eml` file for **Outlook**.
-- Includes **Critical Incidents** and a **"FINAL CHECK-OFF"** table for warm handshakes.
+- Includes **Critical Incidents** (in bold) and a **table for all other handover tickets**.
 
 ---
 
 ## 🔒 Security & Data Integrity
-- **Real-time Sanitization**: Input fields block invalid characters (symbols/special chars) instantly.
+- **Real-time Sanitization**: Input fields block invalid characters (symbols/special chars) instantly while allowing spaces where needed.
 - **Cloud Persistence**: All data is synchronized in real-time via **Firebase Firestore**, so the whole team sees the same state simultaneously.
 - **History Logs**: Every action (assignment, edit, reset) is logged with a timestamp for accountability.
 
