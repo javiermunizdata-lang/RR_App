@@ -14,8 +14,8 @@
 export function sanitizeAlphanumeric(text, maxLength = 30, allowSpaces = true) {
     if (typeof text !== 'string') return '';
     
-    // Trim initial whitespace
-    let sanitized = text.trim();
+    // Trim leading whitespace only (allow trailing space while typing)
+    let sanitized = text.trimStart();
     
     // Remove characters that are not letters, numbers or (optionally) spaces
     const regex = allowSpaces ? /[^a-zA-Z0-9 ]/g : /[^a-zA-Z0-9]/g;
