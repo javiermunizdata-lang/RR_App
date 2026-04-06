@@ -84,10 +84,42 @@ window.app = {
     },
     updateTicketUcn: (index, value, el) => {
         if (!state.tickets[index]) return;
+        const cursorPos = el.selectionStart;
         const sanitized = Security.UCN(value);
         if (el && el.value !== sanitized) el.value = sanitized;
+        el.setSelectionRange(cursorPos, cursorPos);
         state.tickets[index].ucn = sanitized;
         addLog('EDIT_FIELD', 'ucn', state.tickets[index].assignedTo);
+        saveState();
+        saveStateToCloud();
+    },
+    updateTicketCustomer: (index, value, el) => {
+        if (!state.tickets[index]) return;
+        const cursorPos = el.selectionStart;
+        const sanitized = Security.Customer(value);
+        if (el && el.value !== sanitized) el.value = sanitized;
+        el.setSelectionRange(cursorPos, cursorPos);
+        state.tickets[index].customer = sanitized;
+        addLog('EDIT_FIELD', 'customer', state.tickets[index].assignedTo);
+        saveState();
+        saveStateToCloud();
+    },
+    updateTicketNote: (index, value) => {
+        if (!state.tickets[index]) return;
+        state.tickets[index].notes = value;
+        addLog('EDIT_FIELD', 'notes', state.tickets[index].assignedTo);
+        saveState();
+        updateDisplay();
+        saveStateToCloud();
+    },
+    updateTicketCustomNote: (index, value, el) => {
+        if (!state.tickets[index]) return;
+        const cursorPos = el.selectionStart;
+        const sanitized = Security.Note(value);
+        if (el && el.value !== sanitized) el.value = sanitized;
+        el.setSelectionRange(cursorPos, cursorPos);
+        state.tickets[index].notes = sanitized;
+        addLog('EDIT_FIELD', 'custom_note', state.tickets[index].assignedTo);
         saveState();
         saveStateToCloud();
     },
