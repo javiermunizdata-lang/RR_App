@@ -347,12 +347,12 @@ export async function downloadHandoverEml() {
     // Standard HO tickets: HO tickets NOT marked as CI
     const standardTickets = handoverTickets.filter(t => !t.ci);
 
-    // CI section: one line per ticket  "ticket - UCN - Customer - notes"
+    // CI section: one line per ticket "ticket - UCN - Customer - notes" in bold
     const ciLinesHtml = ciTickets.length > 0
-        ? ciTickets.map(t => {
+        ? `<br>${ciTickets.map(t => {
             const parts = [t.number, t.ucn, t.customer, t.notes].filter(Boolean);
-            return `<p style="margin:4px 0;">${parts.map(escapeHtml).join(' - ')}</p>`;
-          }).join('')
+            return `<p style="margin:4px 0;"><strong>${parts.map(escapeHtml).join(' - ')}</strong></p>`;
+          }).join('')}<br>`
         : '<p style="margin:4px 0;">-</p>';
     
     // Standard table rows
