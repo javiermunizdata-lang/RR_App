@@ -359,10 +359,10 @@ export async function downloadHandoverEml() {
     // Standard table rows
     const rowsHtml = standardTickets.map(t => `
         <tr>
-            <td style="border:1px solid #ccc;padding:8px;">${escapeHtml(t.number)}</td>
-            <td style="border:1px solid #ccc;padding:8px;">${escapeHtml(t.ucn)}</td>
-            <td style="border:1px solid #ccc;padding:8px;">${escapeHtml(t.customer)}</td>
-            <td style="border:1px solid #ccc;padding:8px;">${escapeHtml(t.notes)}</td>
+            <td style="border:1px solid #ccc;padding:4px 6px;">${escapeHtml(t.number)}</td>
+            <td style="border:1px solid #ccc;padding:4px 6px;">${escapeHtml(t.ucn)}</td>
+            <td style="border:1px solid #ccc;padding:4px 6px;">${escapeHtml(t.customer)}</td>
+            <td style="border:1px solid #ccc;padding:4px 6px;">${escapeHtml(t.notes)}</td>
         </tr>
     `).join('') || '<tr><td colspan="4">-</td></tr>';
 
@@ -379,10 +379,10 @@ export async function downloadHandoverEml() {
             <table style="border-collapse:collapse;width:100%;border:1px solid #000; margin-bottom:24px;">
                 <thead>
                     <tr style="background:#7030A0;color:white;">
-                        <th style="border:1px solid #000; padding:8px;">Ticket</th>
-                        <th style="border:1px solid #000; padding:8px;">UCN</th>
-                        <th style="border:1px solid #000; padding:8px;">Customer</th>
-                        <th style="border:1px solid #000; padding:8px;">Notes</th>
+                        <th style="border:1px solid #000; padding:4px 6px;">Ticket</th>
+                        <th style="border:1px solid #000; padding:4px 6px;">UCN</th>
+                        <th style="border:1px solid #000; padding:4px 6px;">Customer</th>
+                        <th style="border:1px solid #000; padding:4px 6px;">Notes</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -394,14 +394,14 @@ export async function downloadHandoverEml() {
             <table style="border-collapse:collapse; width:100%; border:1px solid #000; margin-bottom:20px;">
                 <thead>
                     <tr style="background:#eeeeee;">
-                        <th style="border:1px solid #000; width:30%; padding:8px; height:24px;"></th>
-                        <th style="border:1px solid #000; text-align:left; padding:8px; font-weight:bold;">Warm Handshake Completed?</th>
+                        <th style="border:1px solid #000; width:30%; padding:4px;"></th>
+                        <th style="border:1px solid #000; text-align:left; padding:4px; font-weight:bold;">Warm Handshake Completed?</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="border:1px solid #000; padding:8px;">Yes</td>
-                        <td style="border:1px solid #000; padding:8px;"></td>
+                        <td style="border:1px solid #000; padding:4px;">Yes</td>
+                        <td style="border:1px solid #000; padding:4px;"></td>
                     </tr>
                 </tbody>
             </table>
