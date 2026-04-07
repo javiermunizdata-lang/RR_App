@@ -376,7 +376,7 @@ export async function downloadHandoverEml() {
             </div>
 
             <h3 style="color:#7030A0; margin-bottom:8px;">All Other Incidents for Handover</h3>
-            <table style="border-collapse:collapse;width:auto;border:1px solid #000; margin-bottom:24px;">
+            <table style="border-collapse:collapse;max-width:900px;border:1px solid #000; margin-bottom:24px;">
                 <thead>
                     <tr style="background:#7030A0;color:white;">
                         <th style="border:1px solid #000; padding:3px 6px;">Ticket</th>
@@ -391,7 +391,7 @@ export async function downloadHandoverEml() {
             </table>
 
             <h3 style="text-decoration:underline; font-weight:bold; margin-bottom:8px;">FINAL CHECK-OFF</h3>
-            <table style="border-collapse:collapse; width:auto; border:1px solid #000; margin-bottom:20px;">
+            <table style="border-collapse:collapse;max-width:900px;border:1px solid #000; margin-bottom:20px;">
                 <thead>
                     <tr style="background:#eeeeee;">
                         <th style="border:1px solid #000; padding:3px;"></th>
