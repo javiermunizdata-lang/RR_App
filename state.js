@@ -53,7 +53,7 @@ export function loadState() {
     }
 }
 
-// Reset everything
+// Reset everything EXCEPT team order (positions) and member assignments
 export function resetState() {
     state.tickets = [];
     state.rrIndex = 0;
@@ -62,19 +62,11 @@ export function resetState() {
     state.lastModified = null;
     state.timestamp = null;
     
-    state.teamOrder = {
-        early: ALL_MEMBERS.filter(m => m.defaultTurn === 'early').map(m => m.id),
-        laters: ALL_MEMBERS.filter(m => m.defaultTurn === 'laters').map(m => m.id)
-    };
-    
-    // Reset config
-    state.teamConfig = {};
-    ALL_MEMBERS.forEach(member => {
-        state.teamConfig[member.id] = {
-            name: member.name,
-            turn: member.defaultTurn,
-            tickets: 0
-        };
+    // Reset ticket counters only, preserve member names, turns, and positions
+    Object.keys(state.teamConfig).forEach(memberId => {
+        if (state.teamConfig[memberId]) {
+            state.teamConfig[memberId].tickets = 0;
+        }
     });
     
     saveState();
