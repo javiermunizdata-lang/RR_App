@@ -359,10 +359,10 @@ export async function downloadHandoverEml() {
     // Standard table rows
     const rowsHtml = standardTickets.map(t => `
         <tr>
-            <td style="border:1px solid #ccc;padding:4px 6px;">${escapeHtml(t.number)}</td>
-            <td style="border:1px solid #ccc;padding:4px 6px;">${escapeHtml(t.ucn)}</td>
-            <td style="border:1px solid #ccc;padding:4px 6px;">${escapeHtml(t.customer)}</td>
-            <td style="border:1px solid #ccc;padding:4px 6px;">${escapeHtml(t.notes)}</td>
+            <td style="border:1px solid #ccc;padding:2px 4px;">${escapeHtml(t.number)}</td>
+            <td style="border:1px solid #ccc;padding:2px 4px;">${escapeHtml(t.ucn)}</td>
+            <td style="border:1px solid #ccc;padding:2px 4px;">${escapeHtml(t.customer)}</td>
+            <td style="border:1px solid #ccc;padding:2px 4px;">${escapeHtml(t.notes)}</td>
         </tr>
     `).join('') || '<tr><td colspan="4">-</td></tr>';
 
@@ -376,13 +376,13 @@ export async function downloadHandoverEml() {
             </div>
 
             <h3 style="color:#7030A0; margin-bottom:8px;">All Other Incidents for Handover</h3>
-            <table style="border-collapse:collapse;width:700px;border:1px solid #000; margin-bottom:24px;">
+            <table style="border-collapse:collapse;width:auto;border:1px solid #000; margin-bottom:24px;">
                 <thead>
                     <tr style="background:#7030A0;color:white;">
-                        <th style="border:1px solid #000; padding:4px 6px;">Ticket</th>
-                        <th style="border:1px solid #000; padding:4px 6px;">UCN</th>
-                        <th style="border:1px solid #000; padding:4px 6px;">Customer</th>
-                        <th style="border:1px solid #000; padding:4px 6px;">Notes</th>
+                        <th style="border:1px solid #000; padding:3px 6px;">Ticket</th>
+                        <th style="border:1px solid #000; padding:3px 6px;">UCN</th>
+                        <th style="border:1px solid #000; padding:3px 6px;">Customer</th>
+                        <th style="border:1px solid #000; padding:3px 6px;">Notes</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -391,17 +391,17 @@ export async function downloadHandoverEml() {
             </table>
 
             <h3 style="text-decoration:underline; font-weight:bold; margin-bottom:8px;">FINAL CHECK-OFF</h3>
-            <table style="border-collapse:collapse; width:700px; border:1px solid #000; margin-bottom:20px;">
+            <table style="border-collapse:collapse; width:auto; border:1px solid #000; margin-bottom:20px;">
                 <thead>
                     <tr style="background:#eeeeee;">
-                        <th style="border:1px solid #000; width:30%; padding:4px;"></th>
-                        <th style="border:1px solid #000; text-align:left; padding:4px; font-weight:bold;">Warm Handshake Completed?</th>
+                        <th style="border:1px solid #000; padding:3px;"></th>
+                        <th style="border:1px solid #000; text-align:left; padding:3px; font-weight:bold;">Warm Handshake Completed?</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="border:1px solid #000; padding:4px;">Yes</td>
-                        <td style="border:1px solid #000; padding:4px;"></td>
+                        <td style="border:1px solid #000; padding:3px;">Yes</td>
+                        <td style="border:1px solid #000; padding:3px;"></td>
                     </tr>
                 </tbody>
             </table>
