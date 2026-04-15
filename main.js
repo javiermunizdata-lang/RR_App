@@ -185,6 +185,9 @@ window.app = {
         // Remove ticket from array
         state.tickets.splice(index, 1);
         
+        // Reset rrIndex to recalculate who has the least tickets
+        state.rrIndex = 0;
+        
         addLog('DELETE_TICKET', ticketNumber, assignedTo);
         saveState();
         updateDisplay();
