@@ -218,7 +218,7 @@ export function updateTicketsTable() {
     updateFilterAutocompleteOptions();
 
     if (state.tickets.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8">No tickets yet</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9">No tickets yet</td></tr>';
         return;
     }
 
@@ -233,7 +233,7 @@ export function updateTicketsTable() {
         });
 
     if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8">No rows match current filters</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9">No rows match current filters</td></tr>';
         return;
     }
 
@@ -265,6 +265,7 @@ export function updateTicketsTable() {
                     `}
                 </td>
                 <td>${escapeHtml(formatTicketTime(ticket))}</td>
+                <td><button onclick="app.deleteTicket(${index})" style="background:none; border:none; cursor:pointer; color:#e74c3c; font-weight:bold; font-size:16px; padding:4px 8px;" title="Delete ticket">🗑️</button></td>
             </tr>
         `;
     }).join('');

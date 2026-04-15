@@ -161,6 +161,35 @@ window.app = {
         saveState();
         saveStateToCloud();
     },
+    deleteTicket: (index) => {
+        if (!state.tickets[index]) return;
+        
+        const ticket = state.tickets[index];
+        const memberId = ticket.assignedId;
+        const ticketNumber = ticket.number;
+        const assignedTo = ticket.assignedTo;
+        
+        if (!confirm(`Delete ticket ${ticketNumber} assigned to ${assignedTo}?`)) return;
+        
+        // Decrement ticket count for the assigned person
+        if (memberId && state.teamConfig[memberId]) {
+            state.teamConfig[memberId].tickets = Math.max(0, (state.teamConfig[memberId].tickets || 1) - 1);
+        } else {
+            // Fallback: find by name
+            const memberIdByName = Object.keys(state.teamConfig).find(id => state.teamConfig[id].name === assignedTo);
+            if (memberIdByName && state.teamConfig[memberIdByName]) {
+                state.teamConfig[memberIdByName].tickets = Math.max(0, (state.teamConfig[memberIdByName].tickets || 1) - 1);
+            }
+        }
+        
+        // Remove ticket from array
+        state.tickets.splice(index, 1);
+        
+        addLog('DELETE_TICKET', ticketNumber, assignedTo);
+        saveState();
+        updateDisplay();
+        saveStateToCloud();
+    },
     
     // System
     resetAllData: () => {
