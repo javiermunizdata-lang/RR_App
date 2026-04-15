@@ -1,5 +1,16 @@
 import { MEMBERS_BY_ID } from './config.js';
 
+const MOTIVATIONAL_MESSAGES = [
+    "I've got a new ticket for you! Please check it when you can. Thanks!",
+    "New ticket incoming! Take a look whenever you're ready. Thanks!",
+    "Here's a ticket with your name on it! Please check it. Thanks!",
+    "A new ticket has been assigned to you. Please review it. Thanks!",
+    "Just a heads up - you've got a new ticket! Please check it when you can. Thanks!",
+    "New ticket alert! Please take a look. Thanks!",
+    "Your attention, please! New ticket assigned to you. Thanks!",
+    "Please check this ticket whenever you have a moment. Thanks!"
+];
+
 /**
  * Opens a Microsoft Teams chat with a notification for a member
  * @param {string} memberId - ID of the member assigned to the ticket
@@ -14,9 +25,12 @@ export function openTeamsNotification(memberId, ticketNumber, memberTickets = []
         return;
     }
 
+    // Select a random motivational message (rotates on each assignment)
+    const randomMsg = MOTIVATIONAL_MESSAGES[Math.floor(Math.random() * MOTIVATIONAL_MESSAGES.length)];
+
     // New ticket header - clean format without timestamp
     let message = `NEW TICKET: ${ticketNumber.toUpperCase()}\n\n`;
-    message += `Hi ${member.name}, I have assigned this ticket to you. Please check it. Thanks!\n\n`;
+    message += `Hi ${member.name}, ${randomMsg}\n\n`;
 
     // Assignments list for today
     if (memberTickets.length > 0) {
