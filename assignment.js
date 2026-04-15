@@ -9,7 +9,8 @@ import { getCurrentTime, validateTicketNumber } from './utils.js';
 
 export function getActivePersonsForAssignment() {
     const hour = getCurrentTime();
-    const earlyActive = hour >= EARLY_TURN.start && hour < EARLY_TURN.end;
+    // Early: 14:00-22:00 (para de recibir a las 22:45 - última asignación 22:44)
+    const earlyActive = hour >= EARLY_TURN.start && hour < 22;
     const latersActive = (hour >= LATERS_TURN.start) || (hour < LATERS_TURN.end);
 
     const persons = [];
